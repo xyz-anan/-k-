@@ -62,7 +62,6 @@
     <script src="https://phoebeboo.github.io/mewoooo/pp.js" defer></script>
     <script src="main-app.js" defer></script>
     <script src="game-hall.js" defer></script>
-    <script src="forum.js" defer></script>
     <script src="lovers-space.js" defer></script>
     <script src="taobao.js" defer></script>
     <script src="weibo.js" defer></script>
@@ -333,185 +332,6 @@
               </div>
             </div>
             <!-- 右上角的两个并排图标 -->
-            <div id="second-page-top-right-apps">
-              <div
-                class="desktop-app-icon"
-                onclick="showScreen('forum-screen')"
-              >
-                <div class="icon-bg-desktop">
-                  <img
-                    id="icon-img-forum"
-                    src="https://i.postimg.cc/pr0T3WfC/douban-icon.png"
-                    alt="圈子"
-                  />
-                </div>
-                <span class="label">圈子</span>
-              </div>
-              <div class="desktop-app-icon" id="lovers-space-app-icon">
-                <div class="icon-bg-desktop">
-                  <img
-                    id="icon-img-lovers-space"
-                    src="https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png"
-                    alt="情侣空间"
-                  />
-                </div>
-                <span class="label">情侣空间</span>
-              </div>
-
-              <div
-                id="second-page-x-social-app"
-                class="desktop-app-icon"
-                onclick="showScreen('x-social-screen')"
-              >
-                <div class="icon-bg-desktop">
-                  <img
-                    id="icon-img-x-social"
-                    src="https://i.postimg.cc/8P1H0vQ8/x-logo.png"
-                    alt="X社交"
-                  />
-                </div>
-                <span class="label">X社交</span>
-              </div>
-
-              <div id="center-avatar-wrapper">
-                <!-- 原来的头像，放在了新容器的中心 -->
-                <div
-                  id="second-page-center-avatar"
-                  class="custom-widget-container"
-                >
-                  <div class="widget-circle-uploader">
-                    <img
-                      id="widget-image-4"
-                      src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg"
-                      class="editable-image"
-                      title="点击更换图片"
-                    />
-                  </div>
-                </div>
-
-                <!-- 头像下方的可编辑文字框 -->
-                <div id="avatar-subtitle" class="editable-text">
-                  点击编辑文字
-                </div>
-
-                <!-- 头像四个角的可编辑气泡 -->
-                <div class="corner-bubble editable-text" id="bubble-top-left">
-                  左上角
-                </div>
-                <div class="corner-bubble editable-text" id="bubble-top-right">
-                  右上角
-                </div>
-                <div
-                  class="corner-bubble editable-text"
-                  id="bubble-bottom-left"
-                >
-                  左下角
-                </div>
-                <div
-                  class="corner-bubble editable-text"
-                  id="bubble-bottom-right"
-                >
-                  右下角
-                </div>
-              </div>
-
-              <div style="position: absolute; top: 100px; right: 85px">
-                <div
-                  class="desktop-app-icon"
-                  onclick="showScreen('game-hall-screen')"
-                >
-                  <div class="icon-bg-desktop">
-                    <img
-                      id="icon-img-game-hall"
-                      src="https://i.postimg.cc/P5gL5z2g/game-controller-icon.png"
-                      alt="游戏大厅"
-                    />
-                  </div>
-                  <span class="label">游戏大厅</span>
-                </div>
-              </div>
-            </div>
-
-            <div id="new-custom-widget">
-              <!-- 用一个新的容器把月份和头像包起来 -->
-              <div id="new-widget-header">
-                <!-- 加上了 contenteditable 和 class，现在可以随便改它了，写数字、文字都可以 -->
-                <div
-                  id="widget-month-display"
-                  class="editable-text"
-                  contenteditable="true"
-                >
-                  12
-                </div>
-
-                <img
-                  id="new-widget-avatar"
-                  src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg"
-                  class="editable-image"
-                />
-              </div>
-              <div
-                id="new-widget-text-1"
-                class="new-widget-text editable-text"
-                contenteditable="true"
-              >
-                可编辑文字
-              </div>
-              <div class="new-widget-divider"></div>
-              <div
-                id="new-widget-text-2"
-                class="new-widget-text editable-text"
-                contenteditable="true"
-              >
-                可编辑文字
-              </div>
-              <div class="new-widget-divider"></div>
-              <div
-                id="new-widget-text-3"
-                class="new-widget-text editable-text"
-                contenteditable="true"
-              >
-                可编辑文字
-              </div>
-            </div>
-            <div style="position: absolute; bottom: 105px; left: 35px">
-              <div class="desktop-app-icon" id="taobao-app-icon">
-                <div class="icon-bg-desktop">
-                  <img
-                    id="icon-img-taobao"
-                    src="https://i.postimg.cc/k47tXg1j/taologo.png"
-                    alt="桃宝"
-                  />
-                </div>
-                <span
-                  class="label"
-                  style="
-                    color: white;
-                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-                  "
-                  >桃宝</span
-                >
-              </div>
-            </div>
-            <div style="position: absolute; bottom: 105px; left: 120px">
-              <div class="desktop-app-icon" id="date-a-live-app-icon">
-                <div class="icon-bg-desktop">
-                  <img
-                    id="icon-img-date-a-live"
-                    src="https://i.postimg.cc/W36mYgP5/DAL-icon.jpg"
-                    alt="约会大作战"
-                  />
-                </div>
-                <span
-                  class="label"
-                  style="
-                    color: white;
-                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-                  "
-                  >约会大作战</span
-                >
-              </div>
-            </div>
             <div style="position: absolute; bottom: 15px; left: 120px">
               <div class="desktop-app-icon" id="kk-checkin-app-icon">
                 <div class="icon-bg-desktop">
@@ -531,6 +351,39 @@
                 >
               </div>
             </div>
+              <div class="desktop-app-icon" id="lovers-space-app-icon">
+                <div class="icon-bg-desktop">
+                  <img
+                    id="icon-img-lovers-space"
+                    src="https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png"
+                    alt="情侣空间"
+                  />
+                </div>
+                <span class="label">情侣空间</span>
+              </div>
+
+
+            <div style="position: absolute; bottom: 105px; left: 35px">
+              <div class="desktop-app-icon" id="taobao-app-icon">
+                <div class="icon-bg-desktop">
+                  <img
+                    id="icon-img-taobao"
+                    src="https://i.postimg.cc/k47tXg1j/taologo.png"
+                    alt="桃宝"
+                  />
+                </div>
+                <span
+                  class="label"
+                  style="
+                    color: white;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+                  "
+                  >桃宝</span
+                >
+              </div>
+            </div>
+
+
             <div style="position: absolute; bottom: 15px; left: 35px">
               <div class="desktop-app-icon" id="tukey-accounting-app-icon">
                 <div class="icon-bg-desktop">
@@ -16407,12 +16260,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           font: "字体",
           "check-phone": "查手机",
           weibo: "微博",
-          forum: "圈子",
           "lovers-space": "情侣空间",
-          "game-hall": "游戏大厅",
-          "x-social": "X社交",
           taobao: "桃宝",
-          "date-a-live": "约会大作战",
           "tukey-accounting": "兔兔记账",
           "kk-checkin": "kk查岗",
           studio: "lrq小剧场",
@@ -35349,12 +35198,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             font: "字体",
             "check-phone": "查手机",
             weibo: "微博",
-            forum: "圈子",
             "lovers-space": "情侣空间",
-            "game-hall": "游戏大厅",
-            "x-social": "X社交",
             taobao: "桃宝",
-            "date-a-live": "约会大作战",
             "tukey-accounting": "兔兔记账",
             "kk-checkin": "kk查岗",
             studio: "lrq小剧场",
@@ -46604,16 +46449,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               tables: ["weiboPosts", "qzoneSettings"],
             },
             {
-              id: "forum",
-              name: "圈子 (所有小组/帖子/评论/分类)",
-              tables: [
-                "forumGroups",
-                "forumPosts",
-                "forumComments",
-                "forumCategories",
-              ],
-            },
-            {
               id: "taobao",
               name: "桃宝 (所有商品/订单/购物车/余额记录)",
               tables: [
@@ -46628,38 +46463,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               name: "世界书 (全部书籍及分类)",
               tables: ["worldBooks", "worldBookCategories"],
             },
-
-            {
-              id: "dateALive",
-              name: "约会大作战 (场景/预设/立绘/历史)",
-              tables: [
-                "datingScenes",
-                "datingPresets",
-                "datingSpriteGroups",
-                "datingSprites",
-                "datingHistory",
-              ],
-            },
-
-            {
-              id: "tukeyAccounting",
-              name: "兔k记账 (账户/群聊/账单/设置)",
-              tables: [
-                "tukeyAccounts",
-                "tukeyAccountingGroups",
-                "tukeyAccountingRecords",
-                "tukeyAccountingReplies",
-                "tukeyUserSettings",
-                "tukeyCustomConfig",
-              ],
-            },
-
-            {
-              id: "studio",
-              name: "小剧场 (所有剧本/演绎记录)",
-              tables: ["studioScripts", "studioHistory"],
-            },
-
             {
               id: "userStickers",
               name: "我的表情包 (包含分类)",
@@ -46669,15 +46472,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               id: "charStickers",
               name: "角色通用表情包",
               tables: ["charStickers"],
-            },
-            {
-              id: "gameData",
-              name: "游戏大厅数据 (剧本杀/飞行棋题库等)",
-              tables: [
-                "scriptKillScripts",
-                "ludoQuestionBanks",
-                "ludoQuestions",
-              ],
             },
             {
               id: "appearance",
@@ -46958,14 +46752,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             .map((item) => {
               const appNameMap = {
                 weibo: "微博",
-                forum: "圈子",
                 taobao: "桃宝",
                 worldBooks: "世界书",
-
-                dateALive: "约会大作战数据",
-
                 tukeyAccounting: "兔k记账数据",
-
                 studio: "小剧场数据",
 
                 userStickers: "我的表情包",
