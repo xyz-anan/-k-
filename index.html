@@ -7483,247 +7483,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       </div>
     </div>
 
-    <!-- 1. 论坛主屏幕 (显示所有小组) -->
-    <div id="forum-screen" class="screen">
-      <div class="header">
-        <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
-        <span>圈子</span>
-        <div class="header-actions">
-          <span
-            class="action-btn filter-btn"
-            id="forum-filter-btn"
-            title="筛选"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polygon
-                points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
-              ></polygon>
-            </svg>
-          </span>
-
-          <span
-            class="action-btn"
-            id="create-group-btn"
-            style="font-size: 28px; font-weight: 300"
-            >+</span
-          >
-        </div>
-      </div>
-      <div
-        id="forum-group-list"
-        class="list-container"
-        style="
-          padding: 15px;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 15px;
-          align-content: start;
-        "
-      >
-        <!-- 小组列表将由JS动态生成在这里 -->
-      </div>
-    </div>
-
-    <div id="group-screen" class="screen">
-      <div class="header">
-        <span class="back-btn" id="back-to-forum-list">‹</span>
-        <span id="group-screen-title">小组名称</span>
-        <div class="header-actions">
-          <span
-            class="action-btn filter-btn"
-            id="group-filter-btn"
-            title="筛选"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polygon
-                points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
-              ></polygon>
-            </svg>
-          </span>
-
-          <span
-            class="action-btn"
-            id="generate-group-content-btn"
-            title="生成内容"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-            </svg>
-          </span>
-          <span
-            class="action-btn"
-            id="create-forum-post-btn"
-            style="font-size: 28px; font-weight: 300"
-            >+</span
-          >
-        </div>
-      </div>
-      <!-- 同人文创作控制台 (无按钮版) -->
-      <div id="fanfic-preference-bar" style="display: none">
-        <!-- 1. 顶部标题栏 -->
-        <div id="fanfic-bar-header">
-          <span class="bar-title">🪄 同人创作控制台</span>
-          <span id="fanfic-bar-toggle-icon">▼</span>
-        </div>
-
-        <!-- 2. 可折叠的内容区域 -->
-        <div id="fanfic-bar-content">
-          <!-- 预设管理 -->
-          <div class="fanfic-row presets-row">
-            <select id="fanfic-preset-select">
-              <option value="">-- 读取配置 --</option>
-            </select>
-            <button id="save-fanfic-preset-btn" class="mini-btn">保存</button>
-            <button id="delete-fanfic-preset-btn" class="mini-btn danger">
-              删除
-            </button>
-          </div>
-
-          <!-- CP 选择 -->
-          <div class="fanfic-row cp-row">
-            <select id="fanfic-char1-select"></select>
-            <span class="cp-symbol">×</span>
-            <select id="fanfic-char2-select"></select>
-          </div>
-
-          <!-- 核心参数 -->
-          <div class="fanfic-row params-row">
-            <div class="input-group">
-              <label>期望字数</label>
-              <input
-                type="text"
-                id="fanfic-wordcount-input"
-                placeholder="例: 3000字"
-              />
-            </div>
-            <div class="input-group">
-              <label>文章类型</label>
-              <input
-                type="text"
-                id="fanfic-type-input"
-                placeholder="例: 甜文/ABO"
-              />
-            </div>
-          </div>
-
-          <!-- 写作规范 -->
-          <div class="fanfic-row full-width">
-            <label>文风 / 写作规范</label>
-            <input
-              type="text"
-              id="fanfic-style-input"
-              placeholder="例: 心理描写细腻，第一人称..."
-            />
-          </div>
-
-          <!-- 世界观 -->
-          <div class="fanfic-row full-width">
-            <label>世界观 / 剧情梗概</label>
-            <textarea
-              id="fanfic-worldview-input"
-              rows="2"
-              placeholder="在这里输入背景设定..."
-            ></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div id="group-post-list" class="list-container" style="padding-top: 0">
-        <!-- 帖子列表将由JS动态生成在这里 -->
-      </div>
-    </div>
-
-    <!-- 3. 单个帖子页面 (显示帖子内容和评论) -->
-    <div id="post-screen" class="screen">
-      <div class="header">
-        <span class="back-btn" id="back-to-group-screen">‹</span>
-        <span>帖子详情</span>
-        <div class="header-actions">
-          <span class="action-btn" id="repost-to-chat-btn">转载</span>
-        </div>
-      </div>
-      <div
-        id="post-detail-content"
-        class="list-container"
-        style="padding: 20px"
-      >
-        <!-- 帖子和评论将由JS动态生成在这里 -->
-      </div>
-      <!-- 帖子页的评论输入框 -->
-      <div
-        id="post-comment-input-area"
-        class="chat-input-area"
-        style="visibility: visible"
-      >
-        <div class="chat-input-main-row">
-          <textarea
-            id="post-comment-input"
-            rows="1"
-            placeholder="发布你的评论..."
-          ></textarea>
-          <button id="send-post-comment-btn" class="action-button">发送</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="forum-filter-modal" class="modal">
-      <div class="modal-content" style="height: auto; max-height: 60%">
-        <div class="modal-header">
-          <span>按分类筛选</span>
-        </div>
-        <div class="modal-body">
-          <div id="forum-filter-category-list">
-            <!-- 分类标签将由JS动态生成在这里 -->
-          </div>
-        </div>
-        <div class="modal-footer" style="justify-content: space-between">
-          <button class="cancel" id="reset-forum-filter-btn" style="width: 30%">
-            重置
-          </button>
-          <button
-            class="cancel"
-            id="cancel-forum-filter-btn"
-            style="width: 30%"
-          >
-            取消
-          </button>
-          <button class="save" id="apply-forum-filter-btn" style="width: 30%">
-            应用
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- 自定义头像框管理模态框 -->
     <div id="custom-frame-manager-modal" class="modal">
       <div class="modal-content" style="height: 70%">
@@ -30839,6 +30598,57 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             "preview-bubble-style"
           );
         }
+        /* 针对第一页和第二页的所有图标容器进行统一调整 */
+#first-page-icons, 
+#second-page-top-right-apps {
+    display: grid !important;
+    /* 核心：设置为 4 列，每列等宽 */
+    grid-template-columns: repeat(4, 1fr) !important;
+    /* 核心：设置行间距和列间距 */
+    grid-column-gap: 15px;
+    grid-row-gap: 25px;
+    
+    padding: 20px 15px; /* 适当增加内边距 */
+    justify-items: center; /* 图标水平居中 */
+    align-content: start;  /* 从顶部开始排列 */
+    
+    /* 确保容器高度足够容纳 5 行 */
+    min-height: 80vh; 
+}
+
+/* 调整图标本身的大小，防止 4 列太拥挤 */
+.desktop-app-icon {
+    width: 65px !important; /* 根据屏幕宽度可微调 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 !important; /* 清除旧的 margin */
+}
+
+/* 图标内的图片大小 */
+.icon-bg-desktop img {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+}
+
+/* 调整图标文字 */
+.desktop-app-icon .label {
+    font-size: 11px;
+    margin-top: 5px;
+    white-space: nowrap;
+}
+#first-page-icons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4vw; /* 使用视口单位自动调整间距 */
+    padding: 5vw;
+}
+
+.desktop-app-icon {
+    width: 18vw; /* 宽度约为屏幕的 1/5 弱 */
+}
+
 
         async function openGroupManager() {
           await renderGroupList();
@@ -30865,6 +30675,106 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             listEl.appendChild(item);
           });
         }
+        /* 正在被拖拽的图标样式 */
+.dragging {
+    opacity: 0.6;
+    transform: scale(1.1);
+    z-index: 1000;
+    pointer-events: none; /* 确保不影响位置计算 */
+}
+
+/* 编辑模式下的整体容器样式（可选：加个微弱的背景色） */
+.edit-mode-active {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+}
+
+/* 占位符样式，指示图标将要落下的位置 */
+.drag-placeholder {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    visibility: visible;
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // 找到所有的图标容器
+    const containers = [
+        document.getElementById('first-page-icons'),
+        document.getElementById('second-page-top-right-apps')
+    ];
+
+    containers.forEach(container => {
+        if (!container) return;
+
+        let dragEl = null;
+        let pressTimer = null;
+        let isEditing = false;
+
+        // 核心：处理触摸开始
+        container.addEventListener('touchstart', (e) => {
+            const item = e.target.closest('.desktop-app-icon');
+            if (!item) return;
+
+            // 长按 500ms 进入编辑模式
+            pressTimer = setTimeout(() => {
+                isEditing = true;
+                dragEl = item;
+                item.classList.add('dragging');
+                if (navigator.vibrate) navigator.vibrate(50); // 震动反馈
+            }, 500);
+        }, { passive: false });
+
+        // 核心：处理触摸移动
+        container.addEventListener('touchmove', (e) => {
+            if (!isEditing || !dragEl) {
+                clearTimeout(pressTimer); // 如果还没到时间就开始移动，取消长按
+                return;
+            }
+            
+            e.preventDefault(); // 阻止页面滚动
+
+            const touch = e.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            const afterElement = getDragAfterElement(container, touch.clientY, touch.clientX);
+            
+            if (afterElement == null) {
+                container.appendChild(dragEl);
+            } else {
+                container.insertBefore(dragEl, afterElement);
+            }
+        }, { passive: false });
+
+        // 核心：处理触摸结束
+        container.addEventListener('touchend', () => {
+            clearTimeout(pressTimer);
+            if (dragEl) {
+                dragEl.classList.remove('dragging');
+                dragEl = null;
+            }
+            setTimeout(() => isEditing = false, 100); // 延迟退出编辑状态，防止误触点击
+        });
+    });
+
+    // 计算当前手指在哪个图标位置
+    function getDragAfterElement(container, y, x) {
+        const draggableElements = [...container.querySelectorAll('.desktop-app-icon:not(.dragging)')];
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            // 计算手指到图标中心的距离
+            const offsetX = x - (box.left + box.width / 2);
+            const offsetY = y - (box.top + box.height / 2);
+            const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+            if (distance < closest.offset) {
+                return { offset: distance, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.POSITIVE_INFINITY }).element;
+    }
+});
+
 
         async function addNewGroup() {
           const input = document.getElementById("new-group-name-input");
