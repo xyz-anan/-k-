@@ -295,21 +295,44 @@
           </div>
 
           <!-- 新增的第二页，现在是自定义布局 -->
-            <!-- 右上角的两个并排图标 -->
-            <div id="second-page-top-right-apps">
-              <div
-                class="desktop-app-icon"
-                onclick="showScreen('forum-screen')"
-              >
-                <div class="icon-bg-desktop">
-                  <img
-                    id="icon-img-forum"
-                    src="https://i.postimg.cc/k47tXg1j/taologo.png"
-                    alt="桃宝"
-                  />
-                </div>
-                <span class="label">桃宝</span>
+          <div class="home-page">
+            <!-- 左半边的头像小组件 -->
+            <div id="second-page-left-widget" class="custom-widget-container">
+              <div class="widget-circle-uploader">
+                <img
+                  id="widget-image-3"
+                  src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg"
+                  class="editable-image"
+                  title="点击更换图片"
+                />
               </div>
+
+              <div
+                id="second-page-bubble"
+                class="widget-bubble editable-text"
+                contenteditable="true"
+              >
+                点击编辑文字
+              </div>
+
+              <div id="new-bubbles-container">
+                <div
+                  id="flat-capsule-bubble"
+                  class="widget-bubble editable-text"
+                  contenteditable="true"
+                >
+                  可编辑
+                </div>
+                <div
+                  id="circular-bubble"
+                  class="widget-bubble editable-text"
+                  contenteditable="true"
+                >
+                  文字
+                </div>
+              </div>
+            </div>
+            <!-- 右上角的两个并排图标 -->
               <div class="desktop-app-icon" id="lovers-space-app-icon">
                 <div class="icon-bg-desktop">
                   <img
@@ -320,23 +343,6 @@
                 </div>
                 <span class="label">情侣空间</span>
               </div>
-
-              <div style="position: absolute; top: 100px; right: 85px">
-                <div
-                  class="desktop-app-icon"
-                  onclick="showScreen('game-hall-screen')"
-                >
-                  <div class="icon-bg-desktop">
-                    <img
-                      id="icon-img-game-hall"
-                      src="https://i.postimg.cc/P5gL5z2g/game-controller-icon.png"
-                      alt="游戏大厅"
-                    />
-                  </div>
-                  <span class="label">游戏大厅</span>
-                </div>
-              </div>
-            </div>
 
             <div id="new-custom-widget">
               <!-- 用一个新的容器把月份和头像包起来 -->
@@ -349,15 +355,25 @@
                 >
                   ❤️
                 </div>
-
-                <img
-                  id="new-widget-avatar"
-                  src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg"
-                  class="editable-image"
-                />
+            <div style="position: absolute; bottom: 105px; left: 35px">
+              <div class="desktop-app-icon" id="taobao-app-icon">
+                <div class="icon-bg-desktop">
+                  <img
+                    id="icon-img-taobao"
+                    src="https://i.postimg.cc/k47tXg1j/taologo.png"
+                    alt="桃宝"
+                  />
+                </div>
+                <span
+                  class="label"
+                  style="
+                    color: white;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+                  "
+                  >桃宝</span
+                >
               </div>
-              <div
-              
+            </div>
             <div style="position: absolute; bottom: 15px; left: 120px">
               <div class="desktop-app-icon" id="kk-checkin-app-icon">
                 <div class="icon-bg-desktop">
@@ -7459,6 +7475,83 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             style="width: 100%"
           >
             完成
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 角色专属NPC库管理界面 -->
+    <div id="npc-management-screen" class="screen">
+      <div class="header">
+        <span class="back-btn" id="back-from-npc-management">‹</span>
+        <span id="npc-management-title">NPC 库管理</span>
+        <span class="action-btn" id="add-new-npc-btn">+</span>
+      </div>
+      <div class="list-container" id="npc-management-list">
+        <!-- NPC列表将由JS动态生成在这里 -->
+      </div>
+    </div>
+
+        <!-- 帖子列表将由JS动态生成在这里 -->
+      </div>
+    </div>
+
+    <!-- 3. 单个帖子页面 (显示帖子内容和评论) -->
+    <div id="post-screen" class="screen">
+      <div class="header">
+        <span class="back-btn" id="back-to-group-screen">‹</span>
+        <span>帖子详情</span>
+        <div class="header-actions">
+          <span class="action-btn" id="repost-to-chat-btn">转载</span>
+        </div>
+      </div>
+      <div
+        id="post-detail-content"
+        class="list-container"
+        style="padding: 20px"
+      >
+        <!-- 帖子和评论将由JS动态生成在这里 -->
+      </div>
+      <!-- 帖子页的评论输入框 -->
+      <div
+        id="post-comment-input-area"
+        class="chat-input-area"
+        style="visibility: visible"
+      >
+        <div class="chat-input-main-row">
+          <textarea
+            id="post-comment-input"
+            rows="1"
+            placeholder="发布你的评论..."
+          ></textarea>
+          <button id="send-post-comment-btn" class="action-button">发送</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="forum-filter-modal" class="modal">
+      <div class="modal-content" style="height: auto; max-height: 60%">
+        <div class="modal-header">
+          <span>按分类筛选</span>
+        </div>
+        <div class="modal-body">
+          <div id="forum-filter-category-list">
+            <!-- 分类标签将由JS动态生成在这里 -->
+          </div>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between">
+          <button class="cancel" id="reset-forum-filter-btn" style="width: 30%">
+            重置
+          </button>
+          <button
+            class="cancel"
+            id="cancel-forum-filter-btn"
+            style="width: 30%"
+          >
+            取消
+          </button>
+          <button class="save" id="apply-forum-filter-btn" style="width: 30%">
+            应用
           </button>
         </div>
       </div>
@@ -15910,7 +16003,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           weibo: "微博",
           "lovers-space": "情侣空间",
           taobao: "桃宝",
-          "date-a-live": "约会大作战",
           "tukey-accounting": "兔兔记账",
           "kk-checkin": "kk查岗",
           studio: "lrq小剧场",
@@ -46044,6 +46136,42 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
 
         /**
+         * 初始化默认的小组
+         */
+        async function initializeDefaultGroups() {
+          const groupCount = await db.forumGroups.count();
+          if (groupCount === 0) {
+            const defaultGroups = [
+              { name: "娱乐小组", description: "分享八卦和快乐", icon: "🍿" },
+              { name: "灵异小组", description: "分享你的灵异经历", icon: "👻" },
+              {
+                name: "今天我crush了吗",
+                description: "记录心动瞬间",
+                icon: "💖",
+              },
+              {
+                name: "请帮我选择小组",
+                description: "选择困难症患者互助",
+                icon: "🤔",
+              },
+              {
+                name: "同人文小组",
+                description: "为爱发电，创作故事",
+                icon: "✍️",
+              },
+
+              {
+                name: "梦角小组",
+                description: "Char们分享关于user的梦境",
+                icon: "🌙",
+              },
+            ];
+            await db.forumGroups.bulkAdd(defaultGroups);
+            console.log("已成功创建默认小组（包含梦角小组）。");
+          }
+        }
+
+        /**
          * 打开高级导入导出模态框，并动态生成选项列表
          */
         async function openAdvancedTransferModal() {
@@ -46060,6 +46188,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               id: "weibo",
               name: "微博 (全部帖子/角色资料/粉丝数等)",
               tables: ["weiboPosts", "qzoneSettings"],
+            },
+            {
+              id: "forum",
+              name: "圈子 (所有小组/帖子/评论/分类)",
+              tables: [
+                "forumGroups",
+                "forumPosts",
+                "forumComments",
+                "forumCategories",
+              ],
             },
             {
               id: "taobao",
@@ -46117,6 +46255,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               id: "charStickers",
               name: "角色通用表情包",
               tables: ["charStickers"],
+            },
+            {
+              id: "gameData",
+              name: "游戏大厅数据 (剧本杀/飞行棋题库等)",
+              tables: [
+                "scriptKillScripts",
+                "ludoQuestionBanks",
+                "ludoQuestions",
+              ],
             },
             {
               id: "appearance",
@@ -46397,8 +46544,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             .map((item) => {
               const appNameMap = {
                 weibo: "微博",
+                forum: "圈子",
                 taobao: "桃宝",
                 worldBooks: "世界书",
+
+                dateALive: "约会大作战数据",
 
                 tukeyAccounting: "兔k记账数据",
 
@@ -46406,6 +46556,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
                 userStickers: "我的表情包",
                 charStickers: "角色通用表情包",
+                gameData: "游戏大厅数据",
                 appearance: "通用外观预设",
               };
               if (item.startsWith("character_")) {
@@ -61117,124 +61268,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       id="world-book-import-input"
       accept=".json, .jsonl"
       style="display: none"
-      
-      /* 4x5 网格布局核心代码 */
-#first-page-icons, 
-#second-page-top-right-apps {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important; /* 强制 4 列 */
-    grid-template-rows: repeat(5, auto) !important;    /* 5 行 */
-    gap: 20px 10px !important; /* 行间距 20px，列间距 10px */
-    padding: 20px 10px !important;
-    justify-items: center;
-    align-content: start;
-    min-height: 80vh;
-}
-
-/* 调整单个图标大小以适应 4 列 */
-.desktop-app-icon {
-    width: 70px !important;
-    margin: 0 !important;
-    transition: transform 0.2s, opacity 0.2s;
-    cursor: grab;
-    touch-action: none; /* 禁用系统默认触摸行为 */
-    user-select: none;
-}
-
-/* 拖拽时的样式 */
-.desktop-app-icon.dragging {
-    opacity: 0.5;
-    transform: scale(1.1);
-    z-index: 100;
-}
-
-/* 紧凑文字 */
-.desktop-app-icon .label {
-    font-size: 11px !important;
-    margin-top: 4px;
-    white-space: nowrap;
-}
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const containers = [
-        document.getElementById('first-page-icons'),
-        document.getElementById('second-page-top-right-apps')
-    ];
-
-    containers.forEach(container => {
-        if (!container) return;
-
-        let dragEl = null;
-        let pressTimer = null;
-        window.isEditingMode = false; // 全局状态，防止拖拽时触发点击
-
-        // 监听触摸开始
-        container.addEventListener('touchstart', (e) => {
-            const item = e.target.closest('.desktop-app-icon');
-            if (!item) return;
-
-            pressTimer = setTimeout(() => {
-                window.isEditingMode = true;
-                dragEl = item;
-                item.classList.add('dragging');
-                if (navigator.vibrate) navigator.vibrate(50); // 震动反馈
-            }, 500); // 500毫秒识别为长按
-        }, { passive: false });
-
-        // 监听触摸移动
-        container.addEventListener('touchmove', (e) => {
-            if (!window.isEditingMode || !dragEl) {
-                clearTimeout(pressTimer);
-                return;
-            }
-            e.preventDefault(); // 阻止屏幕滚动
-
-            const touch = e.touches[0];
-            const target = document.elementFromPoint(touch.clientX, touch.clientY);
-            
-            // 获取手指下方的图标（排除当前正在拖拽的那个）
-            const afterElement = getDragAfterElement(container, touch.clientX, touch.clientY);
-            
-            if (afterElement == null) {
-                container.appendChild(dragEl);
-            } else {
-                container.insertBefore(dragEl, afterElement);
-            }
-        }, { passive: false });
-
-        // 监听触摸结束
-        container.addEventListener('touchend', () => {
-            clearTimeout(pressTimer);
-            if (dragEl) {
-                dragEl.classList.remove('dragging');
-                dragEl = null;
-            }
-            // 稍后退出编辑模式，防止立即触发 click 事件
-            setTimeout(() => { window.isEditingMode = false; }, 100);
-        });
-    });
-
-    // 计算手指位置最接近的图标
-    function getDragAfterElement(container, x, y) {
-        const draggableElements = [...container.querySelectorAll('.desktop-app-icon:not(.dragging)')];
-
-        return draggableElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            const centerX = box.left + box.width / 2;
-            const centerY = box.top + box.height / 2;
-            const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
-
-            if (distance < closest.offset && distance < 100) { // 增加 100px 范围限制，提高精准度
-                return { offset: distance, element: child };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.POSITIVE_INFINITY }).element;
-    }
-});
-</script>
-
     />
     <input type="file" id="ludo-qbank-import-input" accept=".json" hidden />
     <input type="file" id="inner-voice-bg-input" accept="image/*" hidden />
