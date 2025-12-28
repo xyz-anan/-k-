@@ -333,6 +333,20 @@
               </div>
             </div>
             <!-- 右上角的两个并排图标 -->
+            <div id="second-page-top-right-apps">
+              <div
+                class="desktop-app-icon"
+                onclick="showScreen('forum-screen')"
+              >
+                <div class="icon-bg-desktop">
+                  <img
+                    id="icon-img-forum"
+                    src="https://i.postimg.cc/pr0T3WfC/douban-icon.png"
+                    alt="圈子"
+                  />
+                </div>
+                <span class="label">圈子</span>
+              </div>
               <div class="desktop-app-icon" id="lovers-space-app-icon">
                 <div class="icon-bg-desktop">
                   <img
@@ -344,6 +358,80 @@
                 <span class="label">情侣空间</span>
               </div>
 
+              <div
+                id="second-page-x-social-app"
+                class="desktop-app-icon"
+                onclick="showScreen('x-social-screen')"
+              >
+                <div class="icon-bg-desktop">
+                  <img
+                    id="icon-img-x-social"
+                    src="https://i.postimg.cc/8P1H0vQ8/x-logo.png"
+                    alt="X社交"
+                  />
+                </div>
+                <span class="label">X社交</span>
+              </div>
+
+              <div id="center-avatar-wrapper">
+                <!-- 原来的头像，放在了新容器的中心 -->
+                <div
+                  id="second-page-center-avatar"
+                  class="custom-widget-container"
+                >
+                  <div class="widget-circle-uploader">
+                    <img
+                      id="widget-image-4"
+                      src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg"
+                      class="editable-image"
+                      title="点击更换图片"
+                    />
+                  </div>
+                </div>
+
+                <!-- 头像下方的可编辑文字框 -->
+                <div id="avatar-subtitle" class="editable-text">
+                  点击编辑文字
+                </div>
+
+                <!-- 头像四个角的可编辑气泡 -->
+                <div class="corner-bubble editable-text" id="bubble-top-left">
+                  左上角
+                </div>
+                <div class="corner-bubble editable-text" id="bubble-top-right">
+                  右上角
+                </div>
+                <div
+                  class="corner-bubble editable-text"
+                  id="bubble-bottom-left"
+                >
+                  左下角
+                </div>
+                <div
+                  class="corner-bubble editable-text"
+                  id="bubble-bottom-right"
+                >
+                  右下角
+                </div>
+              </div>
+
+              <div style="position: absolute; top: 100px; right: 85px">
+                <div
+                  class="desktop-app-icon"
+                  onclick="showScreen('game-hall-screen')"
+                >
+                  <div class="icon-bg-desktop">
+                    <img
+                      id="icon-img-game-hall"
+                      src="https://i.postimg.cc/P5gL5z2g/game-controller-icon.png"
+                      alt="游戏大厅"
+                    />
+                  </div>
+                  <span class="label">游戏大厅</span>
+                </div>
+              </div>
+            </div>
+
             <div id="new-custom-widget">
               <!-- 用一个新的容器把月份和头像包起来 -->
               <div id="new-widget-header">
@@ -353,8 +441,39 @@
                   class="editable-text"
                   contenteditable="true"
                 >
-                  ❤️
+                  12
                 </div>
+
+                <img
+                  id="new-widget-avatar"
+                  src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg"
+                  class="editable-image"
+                />
+              </div>
+              <div
+                id="new-widget-text-1"
+                class="new-widget-text editable-text"
+                contenteditable="true"
+              >
+                可编辑文字
+              </div>
+              <div class="new-widget-divider"></div>
+              <div
+                id="new-widget-text-2"
+                class="new-widget-text editable-text"
+                contenteditable="true"
+              >
+                可编辑文字
+              </div>
+              <div class="new-widget-divider"></div>
+              <div
+                id="new-widget-text-3"
+                class="new-widget-text editable-text"
+                contenteditable="true"
+              >
+                可编辑文字
+              </div>
+            </div>
             <div style="position: absolute; bottom: 105px; left: 35px">
               <div class="desktop-app-icon" id="taobao-app-icon">
                 <div class="icon-bg-desktop">
@@ -371,6 +490,25 @@
                     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
                   "
                   >桃宝</span
+                >
+              </div>
+            </div>
+            <div style="position: absolute; bottom: 105px; left: 120px">
+              <div class="desktop-app-icon" id="date-a-live-app-icon">
+                <div class="icon-bg-desktop">
+                  <img
+                    id="icon-img-date-a-live"
+                    src="https://i.postimg.cc/W36mYgP5/DAL-icon.jpg"
+                    alt="约会大作战"
+                  />
+                </div>
+                <span
+                  class="label"
+                  style="
+                    color: white;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+                  "
+                  >约会大作战</span
                 >
               </div>
             </div>
@@ -7492,6 +7630,182 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       </div>
     </div>
 
+    <!-- 1. 论坛主屏幕 (显示所有小组) -->
+    <div id="forum-screen" class="screen">
+      <div class="header">
+        <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
+        <span>圈子</span>
+        <div class="header-actions">
+          <span
+            class="action-btn filter-btn"
+            id="forum-filter-btn"
+            title="筛选"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polygon
+                points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
+              ></polygon>
+            </svg>
+          </span>
+
+          <span
+            class="action-btn"
+            id="create-group-btn"
+            style="font-size: 28px; font-weight: 300"
+            >+</span
+          >
+        </div>
+      </div>
+      <div
+        id="forum-group-list"
+        class="list-container"
+        style="
+          padding: 15px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          align-content: start;
+        "
+      >
+        <!-- 小组列表将由JS动态生成在这里 -->
+      </div>
+    </div>
+
+    <div id="group-screen" class="screen">
+      <div class="header">
+        <span class="back-btn" id="back-to-forum-list">‹</span>
+        <span id="group-screen-title">小组名称</span>
+        <div class="header-actions">
+          <span
+            class="action-btn filter-btn"
+            id="group-filter-btn"
+            title="筛选"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polygon
+                points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
+              ></polygon>
+            </svg>
+          </span>
+
+          <span
+            class="action-btn"
+            id="generate-group-content-btn"
+            title="生成内容"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+            </svg>
+          </span>
+          <span
+            class="action-btn"
+            id="create-forum-post-btn"
+            style="font-size: 28px; font-weight: 300"
+            >+</span
+          >
+        </div>
+      </div>
+      <!-- 同人文创作控制台 (无按钮版) -->
+      <div id="fanfic-preference-bar" style="display: none">
+        <!-- 1. 顶部标题栏 -->
+        <div id="fanfic-bar-header">
+          <span class="bar-title">🪄 同人创作控制台</span>
+          <span id="fanfic-bar-toggle-icon">▼</span>
+        </div>
+
+        <!-- 2. 可折叠的内容区域 -->
+        <div id="fanfic-bar-content">
+          <!-- 预设管理 -->
+          <div class="fanfic-row presets-row">
+            <select id="fanfic-preset-select">
+              <option value="">-- 读取配置 --</option>
+            </select>
+            <button id="save-fanfic-preset-btn" class="mini-btn">保存</button>
+            <button id="delete-fanfic-preset-btn" class="mini-btn danger">
+              删除
+            </button>
+          </div>
+
+          <!-- CP 选择 -->
+          <div class="fanfic-row cp-row">
+            <select id="fanfic-char1-select"></select>
+            <span class="cp-symbol">×</span>
+            <select id="fanfic-char2-select"></select>
+          </div>
+
+          <!-- 核心参数 -->
+          <div class="fanfic-row params-row">
+            <div class="input-group">
+              <label>期望字数</label>
+              <input
+                type="text"
+                id="fanfic-wordcount-input"
+                placeholder="例: 3000字"
+              />
+            </div>
+            <div class="input-group">
+              <label>文章类型</label>
+              <input
+                type="text"
+                id="fanfic-type-input"
+                placeholder="例: 甜文/ABO"
+              />
+            </div>
+          </div>
+
+          <!-- 写作规范 -->
+          <div class="fanfic-row full-width">
+            <label>文风 / 写作规范</label>
+            <input
+              type="text"
+              id="fanfic-style-input"
+              placeholder="例: 心理描写细腻，第一人称..."
+            />
+          </div>
+
+          <!-- 世界观 -->
+          <div class="fanfic-row full-width">
+            <label>世界观 / 剧情梗概</label>
+            <textarea
+              id="fanfic-worldview-input"
+              rows="2"
+              placeholder="在这里输入背景设定..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="group-post-list" class="list-container" style="padding-top: 0">
         <!-- 帖子列表将由JS动态生成在这里 -->
       </div>
     </div>
@@ -8426,6 +8740,98 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             style="width: 100%"
           >
             关闭
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. 小组编辑器弹窗 (用于修改小组信息和世界观) -->
+    <div id="forum-group-editor-modal" class="modal">
+      <div class="modal-content" style="height: auto; max-height: 80%">
+        <div class="modal-header">
+          <span>编辑小组信息</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="group-editor-name-input">小组名称</label>
+            <input type="text" id="group-editor-name-input" />
+          </div>
+          <div class="form-group">
+            <label for="group-editor-desc-input">小组简介</label>
+            <input type="text" id="group-editor-desc-input" />
+          </div>
+          <div class="form-group">
+            <label for="group-editor-icon-input">小组图标 (Emoji)</label>
+            <input type="text" id="group-editor-icon-input" />
+          </div>
+          <div class="form-group">
+            <label for="group-editor-categories-input"
+              >小组分类 (用#号分隔, 例如: #科幻 #未来)</label
+            >
+            <input
+              type="text"
+              id="group-editor-categories-input"
+              placeholder="例如: #科幻 #未来"
+            />
+          </div>
+          <div class="form-group">
+            <label for="group-editor-worldview-input"
+              >小组世界观 (供AI生成内容时参考)</label
+            >
+            <textarea
+              id="group-editor-worldview-input"
+              rows="5"
+              placeholder="详细描述这个小组独特的背景设定..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel" id="cancel-group-editor-btn">取消</button>
+          <button class="save" id="save-group-editor-btn">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 分类管理弹窗 -->
+    <div id="forum-category-manager-modal" class="modal">
+      <div class="modal-content" style="height: 60%">
+        <div class="modal-header">
+          <span>管理圈子分类</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>新建分类</label>
+            <div style="display: flex; gap: 10px">
+              <input
+                type="text"
+                id="new-forum-category-name-input"
+                placeholder="输入分类名，无需带'#'..."
+                style="flex-grow: 1"
+              />
+              <button
+                id="add-new-forum-category-btn"
+                class="form-button"
+                style="width: auto; margin-top: 0; padding: 0 15px"
+              >
+                添加
+              </button>
+            </div>
+          </div>
+          <hr style="opacity: 0.2" />
+          <div
+            id="existing-forum-categories-list"
+            style="display: flex; flex-direction: column; gap: 10px"
+          >
+            <!-- 分类列表将由JS动态生成 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="save"
+            id="close-forum-category-manager-btn"
+            style="width: 100%"
+          >
+            完成
           </button>
         </div>
       </div>
@@ -16001,8 +16407,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           font: "字体",
           "check-phone": "查手机",
           weibo: "微博",
+          forum: "圈子",
           "lovers-space": "情侣空间",
+          "game-hall": "游戏大厅",
+          "x-social": "X社交",
           taobao: "桃宝",
+          "date-a-live": "约会大作战",
           "tukey-accounting": "兔兔记账",
           "kk-checkin": "kk查岗",
           studio: "lrq小剧场",
@@ -34939,8 +35349,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             font: "字体",
             "check-phone": "查手机",
             weibo: "微博",
+            forum: "圈子",
             "lovers-space": "情侣空间",
+            "game-hall": "游戏大厅",
+            "x-social": "X社交",
             taobao: "桃宝",
+            "date-a-live": "约会大作战",
             "tukey-accounting": "兔兔记账",
             "kk-checkin": "kk查岗",
             studio: "lrq小剧场",
