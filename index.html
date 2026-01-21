@@ -17323,34 +17323,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const style = document.createElement("style");
           style.id = styleId;
 
-// 直接创建一条高优先级的CSS规则来应用字体
-style.innerHTML = `
-    @font-face {
-        font-family: 'preset-${preset.id}';
-        src: url('${preset.url}');
-        font-display: swap;
-    }
+          // 直接创建一条高优先级的CSS规则来应用字体
+          style.innerHTML = `
+			        @font-face {
+			            font-family: 'preset-${preset.id}';
+			            src: url('${preset.url}');
+			            font-display: swap;
+			        }
 
-    /* 1. 原有的预览文字字体 */
-    .font-preview-text[data-preset-id="${preset.id}"] {
-        font-family: 'preset-${preset.id}', sans-serif !important;
-    }
+			        .font-preview-text[data-preset-id="${preset.id}"] {
+			            font-family: 'preset-${preset.id}', sans-serif !important;
+			        }
+			    `;
 
-    /* 2. 新增：让输入框也使用这个字体 */
-    #chat-input, 
-    .chat-input-container textarea,
-    .input-box textarea {
-        font-family: 'preset-${preset.id}', sans-serif !important;
-    }
-
-    /* 3. 新增：让 AI 对话框也使用这个字体 */
-    .message, 
-    .message-content {
-        font-family: 'preset-${preset.id}', sans-serif !important;
-    }
-`;
-
-document.head.appendChild(style);
+          document.head.appendChild(style);
+        }
 
         /**
          * 为预设卡槽中的所有按钮统一添加事件监听器
