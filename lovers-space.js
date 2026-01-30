@@ -4,7 +4,7 @@ let activeQuestionId = null; // 当前正在回答的问题ID
 let currentDiaryDate = null; // 当前编辑或查看的日记日期
 let tempUploadedPhotos = []; // 暂存待上传的照片数据
 let lsActivityTimer = null; // 今日足迹定时器ID
-
+let pomodoroCustomPlaylist = [];
 // 情侣空间音乐播放器状态管理器
 let lsMusicState = {
   playlist: [], // 播放列表
@@ -14,13 +14,27 @@ let lsMusicState = {
 
 let pomodoroState = {
   isActive: false,
-  isPaused: false, // <--- 新增：是否暂停
+  isPaused: false,
   timerId: null,
   periodicTalkTimerId: null,
   currentSession: null,
-  timeTracker: 0, // <--- 新增：将计时变量提升到全局状态，以便暂停恢复
-  breakHistory: [], // <--- 新增：用于临时存储休息时的聊天记录
+  timeTracker: 0,
+  breakHistory: [],
+
+  // === BGM 相关 ===
+  bgmAudio: new Audio(),
+  bgmPlaylist: [],
+  bgmIndex: 0,
+  bgmSource: "none",
 };
+
+// 配置循环播放逻辑 (自动播下一首)
+pomodoroState.bgmAudio.addEventListener("ended", () => {
+  playNextPomoMusic();
+});
+// 监听播放状态改变图标
+pomodoroState.bgmAudio.addEventListener("play", updatePomoMusicUI);
+pomodoroState.bgmAudio.addEventListener("pause", updatePomoMusicUI);
 
 // 网络请求工具函数
 if (typeof Http_Get_External === "undefined") {
@@ -154,14 +168,14 @@ async function searchNeteaseMusic(name, singer) {
     }
 
     const apiUrl = `https://api.vkeys.cn/v2/music/netease?word=${encodeURIComponent(
-      searchTerm
+      searchTerm,
     )}`;
 
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -187,7 +201,7 @@ async function searchNeteaseMusic(name, singer) {
     console.error("【vkeys API 直连】搜索失败:", e);
     await showCustomAlert(
       "网易云接口直连失败",
-      `如果浏览器控制台(F12)提示CORS错误，说明此API禁止直接访问。错误: ${e.message}`
+      `如果浏览器控制台(F12)提示CORS错误，说明此API禁止直接访问。错误: ${e.message}`,
     );
     return [];
   }
@@ -202,7 +216,7 @@ async function searchTencentMusic(name) {
   try {
     name = name.replace(/\s/g, "");
     const result = await Http_Get(
-      `https://api.vkeys.cn/v2/music/tencent?word=${encodeURIComponent(name)}`
+      `https://api.vkeys.cn/v2/music/tencent?word=${encodeURIComponent(name)}`,
     );
     if (!result?.data?.length) return [];
     return result.data
@@ -220,6 +234,64 @@ async function searchTencentMusic(name) {
     console.error("QQ音乐搜索API失败:", e);
     return [];
   }
+}
+/**
+ * 【新增】打开高级分享详情弹窗 (萌系版 - 带头像)
+ */
+function openAdvancedShareDetail(shareData) {
+  const modal = document.getElementById("ls-share-detail-modal");
+  const contentBox = modal.querySelector(".modal-content");
+
+  // 元素获取
+  const avatarEl = document.getElementById("ls-share-char-avatar");
+  const iconEl = document.getElementById("ls-share-badge-icon");
+  const titleEl = document.getElementById("ls-share-detail-title");
+  const tagEl = document.getElementById("ls-share-type-text");
+  const summaryEl = document.getElementById("ls-share-summary");
+  const thoughtsEl = document.getElementById("ls-share-thoughts");
+
+  // 1. 获取当前角色的头像
+  // activeLoversSpaceCharId 是一个全局变量，记录了当前正在查看哪个情侣空间
+  const chat = state.chats[activeLoversSpaceCharId];
+  if (chat) {
+    avatarEl.src = chat.settings.aiAvatar || defaultAvatar;
+  } else {
+    avatarEl.src = defaultAvatar;
+  }
+
+  // 配置数据 (定义图标、文字和配色主题)
+  const configMap = {
+    movie: { icon: "🎬", label: "电影推荐", class: "theme-movie" },
+    book: { icon: "📖", label: "好书分享", class: "theme-book" },
+    game: { icon: "🎮", label: "游戏安利", class: "theme-game" },
+  };
+
+  // 如果类型未知，默认用电影样式
+  const config = configMap[shareData.shareType] || configMap.movie;
+
+  // 2. 清除旧的主题Class，添加新的主题Class
+  contentBox.classList.remove("theme-movie", "theme-book", "theme-game");
+  contentBox.classList.add(config.class);
+
+  // 3. 填充内容
+  iconEl.textContent = config.icon;
+  titleEl.textContent = shareData.title || "未知标题";
+  tagEl.textContent = config.label;
+
+  // 如果有作者/歌手信息，加到标题后面
+  if (shareData.artist) {
+    titleEl.textContent += ` - ${shareData.artist}`;
+  }
+
+  // 简介内容
+  summaryEl.textContent = shareData.summary || "（Ta很神秘，没有写下简介...）";
+
+  // 感想内容 - "Char说..."
+  thoughtsEl.textContent =
+    shareData.thoughts || `推荐给你看看《${shareData.title}》！`;
+
+  // 4. 显示弹窗
+  modal.classList.add("visible");
 }
 
 /**
@@ -265,7 +337,7 @@ function showChoiceModal(title, options) {
  */
 async function openLoversSpaceEntry() {
   const singleChats = Object.values(state.chats).filter(
-    (chat) => !chat.isGroup
+    (chat) => !chat.isGroup,
   );
   if (singleChats.length === 0) {
     alert("你还没有任何可以建立情侣空间的角色哦，先去创建一个吧！");
@@ -286,7 +358,7 @@ async function openCharSelectorForLoversSpace() {
   const listEl = document.getElementById("ls-char-selector-list");
   listEl.innerHTML = "";
   const singleChats = Object.values(state.chats).filter(
-    (chat) => !chat.isGroup
+    (chat) => !chat.isGroup,
   );
 
   singleChats.forEach((chat) => {
@@ -371,14 +443,12 @@ function updateLoversSpaceDaysCounter(chat) {
  * @param {object} chat - 聊天对象
  */
 async function renderLoversSpace(chat) {
-  document.getElementById(
-    "lovers-space-screen"
-  ).style.backgroundImage = `url(${chat.loversSpaceData.background})`;
+  document.getElementById("lovers-space-screen").style.backgroundImage =
+    `url(${chat.loversSpaceData.background})`;
 
   const userNickname = state.qzoneSettings.nickname || "{{user}}";
-  document.getElementById(
-    "ls-char-name"
-  ).textContent = `${userNickname} & ${chat.name}`;
+  document.getElementById("ls-char-name").textContent =
+    `${userNickname} & ${chat.name}`;
 
   document.getElementById("ls-user-avatar").src =
     chat.settings.myAvatar || defaultAvatar;
@@ -557,7 +627,7 @@ function openActivityCalendar() {
   body.innerHTML = renderActivityCalendar(
     year,
     month,
-    chat.loversSpaceData.dailyActivity || {}
+    chat.loversSpaceData.dailyActivity || {},
   );
 
   // 使用事件委托处理弹窗内所有点击事件
@@ -570,7 +640,7 @@ function openActivityCalendar() {
       target.closest("#ls-activity-cal-next-btn")
     ) {
       const currentDisplay = body.querySelector(
-        "#ls-activity-cal-month-display"
+        "#ls-activity-cal-month-display",
       ).textContent;
       const [y, m] = currentDisplay.match(/\d+/g).map(Number);
       let newDate = new Date(y, m - 1, 1);
@@ -583,7 +653,7 @@ function openActivityCalendar() {
       body.innerHTML = renderActivityCalendar(
         newDate.getFullYear(),
         newDate.getMonth() + 1,
-        chat.loversSpaceData.dailyActivity || {}
+        chat.loversSpaceData.dailyActivity || {},
       );
       return;
     }
@@ -639,7 +709,7 @@ function renderActivityCalendar(year, month, activityData) {
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(
-      day
+      day,
     ).padStart(2, "0")}`;
     const hasActivity = !!activityData[dateStr];
     const isToday = dateStr === todayStr;
@@ -686,7 +756,7 @@ function displayDailyActivities(activities) {
       const activityTime = new Date(activity.timestamp);
       const timeString = `${String(activityTime.getHours()).padStart(
         2,
-        "0"
+        "0",
       )}:${String(activityTime.getMinutes()).padStart(2, "0")}`;
 
       const durationHtml = activity.duration
@@ -799,7 +869,7 @@ async function handleGenerateDailyActivity(chat) {
       apiKey,
       systemPrompt,
       messagesForApi,
-      isGemini
+      isGemini,
     );
 
     const response = await fetch(
@@ -818,12 +888,12 @@ async function handleGenerateDailyActivity(chat) {
               temperature: 1.0,
               response_format: { type: "json_object" },
             }),
-          }
+          },
     );
 
     if (!response.ok)
       throw new Error(
-        `API请求失败: ${response.status} - ${await response.text()}`
+        `API请求失败: ${response.status} - ${await response.text()}`,
       );
 
     const data = await response.json();
@@ -849,7 +919,7 @@ async function handleGenerateDailyActivity(chat) {
           today.getMonth(),
           today.getDate(),
           hours,
-          minutes
+          minutes,
         );
         return { ...act, timestamp: activityDate.getTime() };
       });
@@ -907,7 +977,7 @@ async function handleChangeLoversSpaceBackground() {
       "更换背景",
       "请输入新的图片URL",
       currentBg,
-      "url"
+      "url",
     );
   }
 
@@ -978,7 +1048,7 @@ function renderLSMoments(moments, chat) {
                 <p class="content">${moment.content.replace(/\n/g, "<br>")}</p>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span class="timestamp">${formatPostTimestamp(
-                      moment.timestamp
+                      moment.timestamp,
                     )}</span>
                 </div>
                 
@@ -1003,16 +1073,17 @@ function renderLSMoments(moments, chat) {
 }
 
 /**
- * 渲染"分享"列表
+ * 渲染"分享"列表 (萌系升级版)
  * @param {Array} shares - 分享数组
  * @param {object} chat - 聊天对象
  */
 function renderLSShares(shares, chat) {
   const listEl = document.getElementById("ls-shares-list");
   listEl.innerHTML = "";
+
   if (!shares || shares.length === 0) {
     listEl.innerHTML =
-      '<p class="ls-empty-placeholder">这里还没有任何分享哦~</p>';
+      '<div class="ls-empty-state"><span style="font-size:40px;">🎐</span><p>还没有任何分享哦~<br>点击右下角分享一部喜欢的电影吧！</p></div>';
     return;
   }
 
@@ -1021,56 +1092,93 @@ function renderLSShares(shares, chat) {
     item.className = "ls-list-item ls-share-item";
     item.dataset.shareData = JSON.stringify(share);
 
-    const typeText =
-      { song: "歌曲", movie: "电影", book: "书籍", game: "游戏" }[
-        share.shareType
-      ] || "分享";
-    const authorName =
-      share.author === "user" ? chat.settings.myNickname || "我" : chat.name;
+    // 1. 确定是谁分享的，获取对应头像
+    const isUser = share.author === "user";
+    const authorName = isUser ? chat.settings.myNickname || "我" : chat.name;
+    const avatarSrc = isUser
+      ? chat.settings.myAvatar || defaultAvatar
+      : chat.settings.aiAvatar || defaultAvatar;
 
-    // 构建分享摘要HTML
-    let summaryHtml = "";
+    // 2. 定义不同类型的可爱风格配置
+    const styleConfig = {
+      song: {
+        icon: "🎵",
+        color: "#FFF0F5",
+        border: "#FFB7B2",
+        label: "分享了歌曲",
+      }, // 粉色系
+      movie: {
+        icon: "🎬",
+        color: "#E3F2FD",
+        border: "#64B5F6",
+        label: "想看电影",
+      }, // 蓝色系
+      book: {
+        icon: "📖",
+        color: "#F1F8E9",
+        border: "#AED581",
+        label: "正在读",
+      }, // 绿色系
+      game: {
+        icon: "🎮",
+        color: "#FFF8E1",
+        border: "#FFB74D",
+        label: "安利游戏",
+      }, // 橙色系
+    };
 
-    // 歌曲显示歌手
+    const config = styleConfig[share.shareType] || styleConfig.song;
+
+    // 3. 构建内容部分
+    let contentHtml = "";
+
+    // 标题部分
+    contentHtml += `<div class="share-card-title">${config.icon} ${share.title}</div>`;
+
+    // 歌手/作者/简介信息
     if (share.shareType === "song" && share.artist) {
-      summaryHtml += `<p style="margin:0; font-weight: 500;"><strong>歌手:</strong> ${share.artist}</p>`;
+      contentHtml += `<div class="share-card-meta">歌手：${share.artist}</div>`;
+    } else if (share.summary) {
+      // 限制字数，防止太长
+      const summaryText =
+        share.summary.length > 60
+          ? share.summary.substring(0, 60) + "..."
+          : share.summary;
+      contentHtml += `<div class="share-card-desc">${summaryText}</div>`;
     }
 
-    // 显示简介
-    if (share.summary) {
-      summaryHtml += `<p style="margin:0; margin-top: 4px;"><strong>简介:</strong> ${share.summary.replace(
-        /\n/g,
-        "<br>"
-      )}</p>`;
-    }
-
-    // 显示感想
+    // 感想部分 (像便签一样贴在下面)
+    let thoughtsHtml = "";
     if (share.thoughts) {
-      summaryHtml += `<p style="margin:0; margin-top: 4px; color: #8a8a8a; font-style: italic;"><strong>感想:</strong> "${share.thoughts}"</p>`;
-    }
-
-    // 默认提示
-    if (!summaryHtml) {
-      summaryHtml = '<p style="margin:0; color: #8a8a8a;">暂无更多信息</p>';
-    }
-
-    // 构建分享项HTML
-    item.innerHTML = `
-            <div class="share-info">
-                <div class="title">
-                    <span class="share-type ${
-                      share.shareType
-                    }">${typeText}</span>
-                    ${share.title}
+      thoughtsHtml = `
+                <div class="share-card-thoughts">
+                    <span class="quote-mark">“</span>
+                    ${share.thoughts}
+                    <span class="quote-mark">”</span>
                 </div>
-                <div class="summary">${summaryHtml}</div>
-                <div class="meta">
-                    由 ${authorName} 分享于 ${formatPostTimestamp(
-      share.timestamp
-    )}
+            `;
+    }
+
+    // 4. 组装整体HTML (带头像的布局)
+    item.innerHTML = `
+            <div class="ls-share-wrapper ${isUser ? "is-me" : ""}">
+                <img src="${avatarSrc}" class="ls-share-avatar" alt="${authorName}">
+                
+                <div class="ls-share-bubble" style="background-color: ${config.color}; border: 2px solid ${config.border};">
+                    <div class="ls-share-header">
+                        <span class="ls-share-label" style="background:${config.border}; color:#fff;">${config.label}</span>
+                        <span class="ls-share-time">${formatPostTimestamp(share.timestamp)}</span>
+                    </div>
+                    
+                    <div class="ls-share-content-box">
+                        ${contentHtml}
+                    </div>
+                    
+                    ${thoughtsHtml}
                 </div>
             </div>
         `;
+
     listEl.appendChild(item);
   });
 }
@@ -1101,9 +1209,10 @@ function renderLSPhotos(photos, chat) {
         ? photo.url
         : "https://i.postimg.cc/KYr2qRCK/1.jpg";
 
-    // 构建照片项HTML，包含背景图片和删除按钮
+    // 修改点：使用 img 标签代替 background-image，并确保样式正确
     item.innerHTML = `
-            <div class="cover" style="background-image: url(${imageUrl});">
+            <div class="cover" style="position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 8px;">
+                <img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
                 <button class="ls-photo-delete-btn">×</button>
             </div>
         `;
@@ -1111,6 +1220,146 @@ function renderLSPhotos(photos, chat) {
     listEl.appendChild(item);
   });
 }
+// --- 新增函数开始 ---
+
+/**
+ * 打开照片详情评论弹窗
+ * @param {number} timestamp - 照片的时间戳ID
+ */
+async function openLSPhotoDetail(timestamp) {
+  const chat = state.chats[activeLoversSpaceCharId];
+  if (!chat || !chat.loversSpaceData || !chat.loversSpaceData.photos) return;
+
+  const photo = chat.loversSpaceData.photos.find(
+    (p) => p.timestamp === timestamp,
+  );
+  if (!photo) return;
+
+  // 1. 填充基本信息
+  const imgEl = document.getElementById("ls-photo-detail-img");
+  // 兼容 text_image 类型
+  if (photo.type === "text_image") {
+    imgEl.src = "https://i.postimg.cc/KYr2qRCK/1.jpg"; // 默认文字图背景
+  } else {
+    imgEl.src = photo.url;
+  }
+
+  document.getElementById("ls-photo-detail-desc").textContent =
+    photo.description || "（没有描述）";
+  document.getElementById("ls-photo-detail-meta").textContent =
+    formatPostTimestamp(photo.timestamp);
+
+  // 2. 暂存当前查看的照片时间戳，供发送按钮使用
+  document.getElementById("ls-photo-detail-modal").dataset.currentTimestamp =
+    timestamp;
+
+  // 3. 渲染评论
+  renderLSPhotoComments(photo);
+
+  // 4. 显示弹窗
+  document.getElementById("ls-photo-detail-modal").classList.add("visible");
+}
+
+/**
+ * 渲染照片评论列表 (萌系版 - 带头像)
+ */
+function renderLSPhotoComments(photo) {
+  const listEl = document.getElementById("ls-photo-comments-list");
+  listEl.innerHTML = "";
+
+  if (!photo.comments || photo.comments.length === 0) {
+    listEl.innerHTML =
+      '<div style="text-align:center; color:#eda; padding:20px; font-size:13px;">(｡•́︿•̀｡) 还没有人评论呢，快来抢沙发~</div>';
+    return;
+  }
+
+  const chat = state.chats[activeLoversSpaceCharId];
+  // 获取"我"的名字
+  const myNickname = chat.settings.myNickname || "我";
+
+  photo.comments.forEach((comment) => {
+    const item = document.createElement("div");
+    const isMe = comment.author === myNickname;
+
+    // 设置样式类名
+    item.className = `ls-photo-comment-item ${isMe ? "is-me" : ""}`;
+
+    // 确定头像
+    let avatarSrc = defaultAvatar;
+    if (isMe) {
+      avatarSrc = chat.settings.myAvatar || defaultAvatar;
+    } else if (comment.author === chat.name) {
+      avatarSrc = chat.settings.aiAvatar || defaultAvatar;
+    }
+
+    item.innerHTML = `
+            <img src="${avatarSrc}" class="ls-photo-comment-avatar">
+            <div class="ls-photo-comment-bubble">
+                <span class="ls-comment-author">${comment.author}</span>
+                ${comment.text}
+            </div>
+        `;
+    listEl.appendChild(item);
+  });
+
+  // 自动滚动到底部
+  setTimeout(() => {
+    listEl.scrollTop = listEl.scrollHeight;
+  }, 100);
+}
+
+/**
+ * 处理发送照片评论
+ */
+async function handleSendLSPhotoComment() {
+  const modal = document.getElementById("ls-photo-detail-modal");
+  const timestamp = parseInt(modal.dataset.currentTimestamp);
+  const input = document.getElementById("ls-photo-comment-input");
+  const text = input.value.trim();
+
+  if (!text) return alert("请输入评论内容");
+  if (!activeLoversSpaceCharId) return;
+
+  const chat = state.chats[activeLoversSpaceCharId];
+  const photo = chat.loversSpaceData.photos.find(
+    (p) => p.timestamp === timestamp,
+  );
+  if (!photo) return;
+
+  // 1. 初始化评论数组
+  if (!photo.comments) photo.comments = [];
+
+  // 2. 添加评论
+  const myNickname = chat.settings.myNickname || "我";
+  photo.comments.push({
+    author: myNickname,
+    text: text,
+    timestamp: Date.now(),
+  });
+
+  // 3. 保存并刷新
+  await db.chats.put(chat);
+  renderLSPhotoComments(photo);
+  input.value = ""; // 清空输入框
+
+  // 4. 【核心】触发AI回复
+  // 构造一条系统消息通知AI
+  const photoDesc = photo.description || "一张照片";
+  const hiddenMessage = {
+    role: "system",
+    content: `[系统提示：用户评论了情侣空间的一张照片。
+        照片描述：“${photoDesc}”。
+        用户的评论：“${text}”。
+        请你以"${chat.name}"的身份，针对这张照片和用户的评论进行回应。]`,
+    timestamp: Date.now(),
+    isHidden: true,
+  };
+
+  chat.history.push(hiddenMessage);
+  await db.chats.put(chat); // 再次保存聊天记录
+}
+
+// --- 新增函数结束 ---
 
 /**
  * 打开创建说说的弹窗
@@ -1188,7 +1437,7 @@ function openAlbumCreator() {
  */
 function handlePhotoSelection(files) {
   const previewContainer = document.getElementById(
-    "ls-photo-preview-container"
+    "ls-photo-preview-container",
   );
   previewContainer.innerHTML = "";
   tempUploadedPhotos = [];
@@ -1282,7 +1531,7 @@ async function handleDeleteLSPhoto(timestamp) {
     "确定要删除这张照片吗？此操作无法恢复。",
     {
       confirmButtonClass: "btn-danger",
-    }
+    },
   );
 
   if (confirmed) {
@@ -1291,7 +1540,7 @@ async function handleDeleteLSPhoto(timestamp) {
 
     // 从照片数组中过滤掉要删除的照片
     chat.loversSpaceData.photos = chat.loversSpaceData.photos.filter(
-      (p) => p.timestamp !== timestamp
+      (p) => p.timestamp !== timestamp,
     );
 
     // 保存更新后的聊天数据
@@ -1344,7 +1593,7 @@ function renderLSLetters(letters, chat) {
                 </div>
                 <div class="letter-preview">${letter.content.substring(
                   0,
-                  30
+                  30,
                 )}...</div>
             </div>
             <div class="letter-sender">
@@ -1493,7 +1742,7 @@ async function handlePostLoveLetter() {
 async function showLoveLetterDetail(letterId) {
   const chat = state.chats[activeLoversSpaceCharId];
   activeLoveLetter = chat.loversSpaceData.loveLetters.find(
-    (l) => l.id === letterId
+    (l) => l.id === letterId,
   );
   if (!activeLoveLetter) return;
 
@@ -1507,11 +1756,10 @@ async function showLoveLetterDetail(letterId) {
     activeLoveLetter.recipientName;
   document.getElementById("ls-viewer-body").innerHTML =
     activeLoveLetter.content.replace(/\n/g, "<br>"); // 正文内容
-  document.getElementById(
-    "ls-viewer-sender-name"
-  ).textContent = `Your dearest, ${activeLoveLetter.senderName}`; // 发信人
+  document.getElementById("ls-viewer-sender-name").textContent =
+    `Your dearest, ${activeLoveLetter.senderName}`; // 发信人
   document.getElementById("ls-viewer-timestamp").textContent = new Date(
-    activeLoveLetter.timestamp
+    activeLoveLetter.timestamp,
   ).toLocaleString(); // 时间
 
   // 显示弹窗
@@ -1572,7 +1820,7 @@ function renderCalendar(year, month, diaryData) {
   // 日期格子
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(
-      day
+      day,
     ).padStart(2, "0")}`;
     const dayData = diaryData[dateStr] || {};
     const isToday =
@@ -1657,9 +1905,8 @@ function openDiaryModal(dateStr) {
  */
 function openDiaryEditor(dateStr, entryData) {
   const modal = document.getElementById("ls-diary-editor-modal");
-  document.getElementById(
-    "ls-diary-editor-title"
-  ).textContent = `记录 ${dateStr} 的心情`;
+  document.getElementById("ls-diary-editor-title").textContent =
+    `记录 ${dateStr} 的心情`;
 
   const emojiSelector = document.getElementById("ls-emoji-selector");
   const emojis = ["😊", "😄", "😍", "😢", "😠", "🤔", "😴", "🤢"];
@@ -1689,9 +1936,8 @@ function openDiaryEditor(dateStr, entryData) {
  */
 function openDiaryViewer(dateStr, entryData, chat) {
   const modal = document.getElementById("ls-diary-viewer-modal");
-  document.getElementById(
-    "ls-diary-viewer-title"
-  ).textContent = `查看 ${dateStr} 的日记`;
+  document.getElementById("ls-diary-viewer-title").textContent =
+    `查看 ${dateStr} 的日记`;
   const bodyEl = document.getElementById("ls-diary-viewer-body");
   bodyEl.innerHTML = "";
 
@@ -1708,7 +1954,7 @@ function openDiaryViewer(dateStr, entryData, chat) {
             </div>
             <p class="entry-content">${entryData.userDiary.replace(
               /\n/g,
-              "<br>"
+              "<br>",
             )}</p>
         `;
     bodyEl.appendChild(userBlock);
@@ -1726,7 +1972,7 @@ function openDiaryViewer(dateStr, entryData, chat) {
             </div>
             <p class="entry-content">${entryData.charDiary.replace(
               /\n/g,
-              "<br>"
+              "<br>",
             )}</p>
         `;
     bodyEl.appendChild(charBlock);
@@ -1743,7 +1989,7 @@ function openDiaryViewer(dateStr, entryData, chat) {
  */
 async function handleSaveUserDiary() {
   const selectedEmojiEl = document.querySelector(
-    "#ls-emoji-selector .selected"
+    "#ls-emoji-selector .selected",
   );
   const userEmoji = selectedEmojiEl ? selectedEmojiEl.dataset.emoji : null;
   const userDiary = document
@@ -1858,7 +2104,7 @@ function renderLSQuestions(questions, chat) {
                         </div>
                         <p class="qa-content">${q.answerText.replace(
                           /\n/g,
-                          "<br>"
+                          "<br>",
                         )}</p>
                     </div>
                 </div>
@@ -1894,12 +2140,12 @@ function renderLSQuestions(questions, chat) {
                     <div class="qa-header">
                         <span class="qa-author">${questionerName}的提问</span>
                         <span class="qa-timestamp">${formatPostTimestamp(
-                          q.timestamp
+                          q.timestamp,
                         )}</span>
                     </div>
                     <p class="qa-content">${q.questionText.replace(
                       /\n/g,
-                      "<br>"
+                      "<br>",
                     )}</p>
                 </div>
             </div>
@@ -1967,7 +2213,7 @@ async function handlePostQuestion() {
 function openAnswerEditor(questionId) {
   const chat = state.chats[activeLoversSpaceCharId];
   const question = chat.loversSpaceData.questions.find(
-    (q) => q.id === questionId
+    (q) => q.id === questionId,
   );
   if (!question) return;
 
@@ -1993,7 +2239,7 @@ async function handlePostAnswer() {
   }
   const chat = state.chats[activeLoversSpaceCharId];
   const question = chat.loversSpaceData.questions.find(
-    (q) => q.id === activeQuestionId
+    (q) => q.id === activeQuestionId,
   );
   if (question) {
     question.answerer = "user"; // 明确回答者是用户
@@ -2032,7 +2278,7 @@ async function handleDeleteLSQuestion(questionId) {
     "确定要删除这个问题以及对应的回答吗？此操作无法恢复。",
     {
       confirmButtonClass: "btn-danger",
-    }
+    },
   );
 
   // 如果用户确认删除
@@ -2043,7 +2289,7 @@ async function handleDeleteLSQuestion(questionId) {
 
     // 从提问数组中过滤掉要删除的提问
     chat.loversSpaceData.questions = chat.loversSpaceData.questions.filter(
-      (q) => q.id !== questionId
+      (q) => q.id !== questionId,
     );
 
     // 保存更新后的聊天数据
@@ -2063,12 +2309,12 @@ async function handleDeleteLSQuestion(questionId) {
 async function openLoversSpaceMusicPlayer(shareData) {
   await showCustomAlert(
     "请稍候...",
-    `正在为《${shareData.title}》寻找播放资源...`
+    `正在为《${shareData.title}》寻找播放资源...`,
   );
 
   // 检查播放列表是否已经有这首歌了
   const existingIndex = lsMusicState.playlist.findIndex(
-    (song) => song.name === shareData.title && song.artist === shareData.artist
+    (song) => song.name === shareData.title && song.artist === shareData.artist,
   );
 
   if (existingIndex > -1) {
@@ -2098,7 +2344,7 @@ async function openLoversSpaceMusicPlayer(shareData) {
   if (!songData) {
     await showCustomAlert(
       "播放失败",
-      `抱歉，在网易云和QQ音乐都没能找到《${songName}》的可播放资源。`
+      `抱歉，在网易云和QQ音乐都没能找到《${songName}》的可播放资源。`,
     );
     return;
   }
@@ -2114,7 +2360,7 @@ async function openLoversSpaceMusicPlayer(shareData) {
   if (!result?.data?.url || !(await checkAudioAvailability(result.data.url))) {
     await showCustomAlert(
       "获取失败",
-      `找到了《${songName}》，但无法获取有效的播放链接。`
+      `找到了《${songName}》，但无法获取有效的播放链接。`,
     );
     return;
   }
@@ -2342,7 +2588,7 @@ function updateLSCurrentLyric(currentTime) {
 
     if (newLyricIndex > -1) {
       const activeLine = lyricsList.querySelector(
-        `.lyric-line[data-index="${newLyricIndex}"]`
+        `.lyric-line[data-index="${newLyricIndex}"]`,
       );
       if (activeLine) {
         activeLine.classList.add("active");
@@ -2415,10 +2661,10 @@ async function renderPomodoroHistory(charId) {
             <div class="task">${session.task}</div>
             <div class="meta">
                 ${new Date(
-                  session.startTime
+                  session.startTime,
                 ).toLocaleString()} | 专注 ${Math.round(
-      session.duration / 60
-    )} 分钟
+                  session.duration / 60,
+                )} 分钟
             </div>
             <button class="pomodoro-delete-btn" style="
                 position: absolute;
@@ -2449,7 +2695,7 @@ async function renderPomodoroHistory(charId) {
       const confirmed = await showCustomConfirm(
         "删除记录",
         "确定要删除这条专注记录吗？",
-        { confirmButtonClass: "btn-danger" }
+        { confirmButtonClass: "btn-danger" },
       );
       if (confirmed) {
         await db.pomodoroSessions.delete(session.id);
@@ -2556,8 +2802,66 @@ function openPomodoroSetup() {
 
   // 每次打开时，清空上一次本地上传的临时数据
   pomodoroState.tempBgDataUrl = null;
+  // === [新增] 初始化 BGM UI ===
+  const sourceSelect = document.getElementById("pomodoro-bgm-source-select");
+  const customPanel = document.getElementById("pomodoro-custom-playlist-panel");
 
+  sourceSelect.value = "none"; // 默认静音
+  customPanel.style.display = "none";
+
+  // 如果之前存过自定义歌单，渲染一下
+  renderPomodoroCustomListUI();
   document.getElementById("ls-pomodoro-setup-modal").classList.add("visible");
+}
+// [新增] 渲染设置弹窗里的自定义歌单列表
+function renderPomodoroCustomListUI() {
+  const listEl = document.getElementById("pomodoro-custom-list");
+  listEl.innerHTML = "";
+
+  if (pomodoroCustomPlaylist.length === 0) {
+    listEl.innerHTML =
+      '<p style="color:#999; text-align:center; margin: 10px 0;">暂无歌曲</p>';
+    return;
+  }
+
+  pomodoroCustomPlaylist.forEach((track, index) => {
+    const item = document.createElement("div");
+    item.style.cssText =
+      "display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #eee;";
+    item.innerHTML = `
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">${track.name}</span>
+            <span style="cursor:pointer; color:#ff3b30;" onclick="removePomodoroCustomSong(${index})">×</span>
+        `;
+    listEl.appendChild(item);
+  });
+}
+
+// [新增] 移除自定义歌曲
+window.removePomodoroCustomSong = function (index) {
+  pomodoroCustomPlaylist.splice(index, 1);
+  renderPomodoroCustomListUI();
+};
+
+// [新增] 播放当前的 BGM
+async function playPomodoroBGM() {
+  if (pomodoroState.bgmPlaylist.length === 0) return;
+
+  const track = pomodoroState.bgmPlaylist[pomodoroState.bgmIndex];
+  if (!track) return;
+
+  // 如果是 Blob 对象（本地文件），生成 URL
+  if (track.isLocal && track.src instanceof File) {
+    pomodoroState.bgmAudio.src = URL.createObjectURL(track.src);
+  } else {
+    pomodoroState.bgmAudio.src = track.src;
+  }
+
+  pomodoroState.bgmAudio.volume = 0.5; // 默认音量 50%
+  try {
+    await pomodoroState.bgmAudio.play();
+  } catch (e) {
+    console.error("番茄钟BGM播放失败:", e);
+  }
 }
 
 /**
@@ -2567,17 +2871,36 @@ async function startPomodoroSession() {
   const task = document.getElementById("pomodoro-task-input").value.trim();
   // 获取用户选择的计时模式
   const timerType = document.querySelector(
-    'input[name="pomodoro-mode"]:checked'
+    'input[name="pomodoro-mode"]:checked',
   ).value;
   const durationMinutes = parseInt(
-    document.getElementById("pomodoro-duration-input").value
+    document.getElementById("pomodoro-duration-input").value,
   );
   const talkIntervalMinutes = parseInt(
-    document.getElementById("pomodoro-talk-interval-input").value
+    document.getElementById("pomodoro-talk-interval-input").value,
   );
   const bgUrl =
     pomodoroState.tempBgDataUrl ||
     document.getElementById("pomodoro-bg-url-input").value.trim();
+  // === [修改] 获取 BGM 设置 ===
+  const bgmSource = document.getElementById("pomodoro-bgm-source-select").value;
+  pomodoroState.bgmSource = bgmSource;
+  pomodoroState.bgmPlaylist = [];
+  pomodoroState.bgmIndex = 0;
+
+  // 根据选择填充播放列表
+  if (bgmSource === "global") {
+    // 从 main-app.js 的全局 state 获取（排除保活音频）
+    pomodoroState.bgmPlaylist = (window.state.musicState.playlist || []).filter(
+      (t) => !t.isKeepAlive,
+    );
+  } else if (bgmSource === "custom") {
+    pomodoroState.bgmPlaylist = [...pomodoroCustomPlaylist];
+  }
+
+  if (bgmSource !== "none" && pomodoroState.bgmPlaylist.length === 0) {
+    alert("你选择的歌单是空的，将静音开始。");
+  }
 
   if (!task) {
     alert("请输入一个专注任务！");
@@ -2662,12 +2985,30 @@ async function startPomodoroSession() {
 
   // --- 4. 角色定时说话逻辑 (已修改支持暂停) ---
   if (talkIntervalMinutes > 0) {
-    pomodoroState.periodicTalkTimerId = setInterval(() => {
-      // 【核心修改】暂停时不触发主动说话，以免打扰休息
-      if (!pomodoroState.isPaused) {
-        triggerPomodoroAIResponse("periodic_encouragement");
-      }
-    }, talkIntervalMinutes * 60 * 1000);
+    pomodoroState.periodicTalkTimerId = setInterval(
+      () => {
+        // 【核心修改】暂停时不触发主动说话，以免打扰休息
+        if (!pomodoroState.isPaused) {
+          triggerPomodoroAIResponse("periodic_encouragement");
+        }
+      },
+      talkIntervalMinutes * 60 * 1000,
+    );
+  }
+  // === [修改] 开始播放音乐 ===
+  if (bgmSource !== "none" && pomodoroState.bgmPlaylist.length > 0) {
+    // 暂停主播放器
+    const mainAudio = document.getElementById("audio-player");
+    const lsAudio = document.getElementById("ls-audio-player");
+    if (mainAudio) mainAudio.pause();
+    if (lsAudio) lsAudio.pause();
+
+    // 播放第一首
+    playPomodoroTrack(0);
+  } else {
+    // 确保清理旧源
+    pomodoroState.bgmAudio.pause();
+    pomodoroState.bgmAudio.src = "";
   }
 
   // --- 5. 完成启动 ---
@@ -2701,10 +3042,15 @@ function togglePomodoroPause() {
 
     // 自动打开休息聊天窗口
     openPomodoroBreakChat();
+    pomodoroState.bgmAudio.pause();
   } else {
     // === 恢复专注状态 ===
     pauseBtn.textContent = "暂停 / 休息";
     pauseBtn.style.backgroundColor = "#ffca28"; // 变回黄色
+    // [新增] 恢复 BGM
+    if (pomodoroState.bgmPlaylist.length > 0) {
+      pomodoroState.bgmAudio.play().catch((e) => console.error(e));
+    }
   }
 }
 // 打开休息聊天窗口
@@ -2744,7 +3090,7 @@ async function sendPomodoroBreakMessage() {
         <img src="${userAvatar}" class="break-avatar">
         <div class="pomodoro-break-bubble user">${text.replace(
           /\n/g,
-          "<br>"
+          "<br>",
         )}</div>
     `;
   messagesEl.appendChild(rowDiv);
@@ -2854,7 +3200,7 @@ async function triggerPomodoroBreakResponse(userText) {
       apiKey,
       systemPrompt,
       messagesForApi,
-      isGemini
+      isGemini,
     );
 
     const response = isGemini
@@ -2913,7 +3259,7 @@ async function triggerPomodoroBreakResponse(userText) {
             <img src="${aiAvatar}" class="break-avatar">
             <div class="pomodoro-break-bubble ai">${msg.content.replace(
               /\n/g,
-              "<br>"
+              "<br>",
             )}</div>
         `;
       messagesEl.appendChild(aiRow);
@@ -2950,7 +3296,7 @@ function updatePomodoroTimerDisplay(secondsLeft) {
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
   document.getElementById("pomodoro-time").textContent = `${String(
-    minutes
+    minutes,
   ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 /**
@@ -2961,11 +3307,13 @@ async function endPomodoroSession(isCompleted = false) {
 
   clearInterval(pomodoroState.timerId);
   clearInterval(pomodoroState.periodicTalkTimerId);
-
+  // === [新增] 停止音乐 ===
+  pomodoroState.bgmAudio.pause();
+  pomodoroState.bgmAudio.src = "";
   // 1. 计算最终时长
   if (pomodoroState.currentSession.timerType === "countup") {
     pomodoroState.currentSession.duration = Math.floor(
-      (Date.now() - pomodoroState.currentSession.startTime) / 1000
+      (Date.now() - pomodoroState.currentSession.startTime) / 1000,
     );
   }
 
@@ -2982,7 +3330,6 @@ async function endPomodoroSession(isCompleted = false) {
   // 刷新列表
   await renderPomodoroHistory(activeLoversSpaceCharId);
 
-  // 重置状态
   pomodoroState = {
     isActive: false,
     isPaused: false,
@@ -2991,6 +3338,11 @@ async function endPomodoroSession(isCompleted = false) {
     currentSession: null,
     breakHistory: [],
     timeTracker: 0,
+    // 保留BGM Audio对象，但清空播放列表
+    bgmAudio: pomodoroState.bgmAudio,
+    bgmPlaylist: [],
+    bgmIndex: 0,
+    bgmSource: "none",
   };
 
   const chat = state.chats[activeLoversSpaceCharId];
@@ -3010,6 +3362,150 @@ async function endPomodoroSession(isCompleted = false) {
     showCustomAlert("专注结束", "你中断了本次专注。");
   }
 }
+// 播放指定索引的歌曲
+async function playPomodoroTrack(index) {
+  if (pomodoroState.bgmPlaylist.length === 0) return;
+
+  // 越界保护
+  if (index >= pomodoroState.bgmPlaylist.length) index = 0;
+  if (index < 0) index = pomodoroState.bgmPlaylist.length - 1;
+
+  pomodoroState.bgmIndex = index;
+  const track = pomodoroState.bgmPlaylist[index];
+
+  // 处理源
+  if (track.isLocal && track.src instanceof File) {
+    pomodoroState.bgmAudio.src = URL.createObjectURL(track.src);
+  } else {
+    pomodoroState.bgmAudio.src = track.src;
+  }
+
+  pomodoroState.bgmAudio.volume = 0.5;
+
+  try {
+    await pomodoroState.bgmAudio.play();
+  } catch (e) {
+    console.error("BGM播放失败:", e);
+  }
+  updatePomoMusicUI();
+}
+
+// 播放/暂停切换
+function togglePomoMusic() {
+  if (pomodoroState.bgmAudio.paused) {
+    if (pomodoroState.bgmAudio.src) pomodoroState.bgmAudio.play();
+    else playPomodoroTrack(pomodoroState.bgmIndex); // 如果还没源，重新加载
+  } else {
+    pomodoroState.bgmAudio.pause();
+  }
+  updatePomoMusicUI();
+}
+
+// 下一首
+function playNextPomoMusic() {
+  playPomodoroTrack(pomodoroState.bgmIndex + 1);
+}
+
+// 上一首
+function playPrevPomoMusic() {
+  playPomodoroTrack(pomodoroState.bgmIndex - 1);
+}
+// 更新弹窗 UI
+function updatePomoMusicUI() {
+  const titleEl = document.getElementById("pomo-music-title");
+  const artistEl = document.getElementById("pomo-music-artist");
+  const coverEl = document.getElementById("pomo-music-cover");
+  const discAnim = document.getElementById("pomo-disc-anim");
+
+  // 图标切换
+  const iconPlay = document.getElementById("pomo-icon-play");
+  const iconPause = document.getElementById("pomo-icon-pause");
+
+  // 1. 更新顶部信息
+  if (pomodoroState.bgmPlaylist.length > 0) {
+    const currentTrack = pomodoroState.bgmPlaylist[pomodoroState.bgmIndex];
+    titleEl.textContent = currentTrack.name || "未知歌曲";
+    artistEl.textContent = currentTrack.artist || "未知艺术家";
+    // 如果有封面就用封面，没有就用默认占位图
+    coverEl.src =
+      currentTrack.cover ||
+      "https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png";
+  } else {
+    titleEl.textContent = "列表为空";
+    artistEl.textContent = "";
+    coverEl.src = "https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png";
+  }
+
+  // 2. 更新播放状态 (图标 + 旋转动画)
+  if (pomodoroState.bgmAudio.paused) {
+    iconPlay.style.display = "block";
+    iconPause.style.display = "none";
+    discAnim.classList.remove("playing"); // 停止旋转
+  } else {
+    iconPlay.style.display = "none";
+    iconPause.style.display = "block";
+    discAnim.classList.add("playing"); // 开始旋转
+  }
+
+  // 3. 更新列表高亮
+  if (
+    document
+      .getElementById("pomodoro-music-modal")
+      .classList.contains("visible")
+  ) {
+    renderPomoMusicList();
+  }
+}
+// 渲染播放列表
+function renderPomoMusicList() {
+  const listEl = document.getElementById("pomo-music-list");
+  listEl.innerHTML = "";
+
+  if (pomodoroState.bgmPlaylist.length === 0) {
+    listEl.innerHTML =
+      '<p style="text-align:center;color:#999;font-size:13px;margin-top:20px;">列表是空的</p>';
+    return;
+  }
+
+  pomodoroState.bgmPlaylist.forEach((track, index) => {
+    const item = document.createElement("div");
+    item.className = "pomo-playlist-item";
+    if (index === pomodoroState.bgmIndex) {
+      item.classList.add("active");
+    }
+
+    // 使用一个动态的小图标 GIF (或者 emoji) 表示正在播放
+    const playingIndicator =
+      index === pomodoroState.bgmIndex && !pomodoroState.bgmAudio.paused
+        ? "🎵"
+        : `${index + 1}`;
+
+    item.innerHTML = `
+            <div class="index" style="text-align:center; font-weight:bold; ${index === pomodoroState.bgmIndex ? "color:#ff9a9e;" : ""}">${playingIndicator}</div>
+            <div class="info">
+                <div class="title">${track.name}</div>
+                <div class="artist">${track.artist || "未知"}</div>
+            </div>
+        `;
+    // 点击切歌
+    item.addEventListener("click", () => {
+      playPomodoroTrack(index);
+    });
+
+    listEl.appendChild(item);
+  });
+}
+
+// 打开 BGM 控制面板
+function openPomodoroMusicModal() {
+  if (!pomodoroState.isActive) return;
+
+  // 渲染 UI
+  updatePomoMusicUI();
+  renderPomoMusicList();
+
+  document.getElementById("pomodoro-music-modal").classList.add("visible");
+}
 
 /**
  * 触发番茄钟期间的AI互动
@@ -3026,7 +3522,7 @@ async function triggerPomodoroAIResponse(triggerType) {
   }
 
   const elapsedSeconds = Math.floor(
-    (Date.now() - pomodoroState.currentSession.startTime) / 1000
+    (Date.now() - pomodoroState.currentSession.startTime) / 1000,
   );
   const elapsedMinutes = Math.floor(elapsedSeconds / 60);
   const timeContext = `用户已经持续专注了 ${elapsedMinutes} 分钟。`;
@@ -3067,7 +3563,7 @@ async function triggerPomodoroAIResponse(triggerType) {
 
     if (isGemini) {
       requestUrl = `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(
-        apiKey
+        apiKey,
       )}`;
       requestHeaders = { "Content-Type": "application/json" };
       requestBody = {
@@ -3259,7 +3755,7 @@ function initLoversSpace() {
           // 如果未开通，弹窗确认是否发送邀请
           const confirmed = await showCustomConfirm(
             "邀请开启情侣空间",
-            `你和"${chat.name}"的情侣空间还未开启，要现在邀请Ta吗？`
+            `你和"${chat.name}"的情侣空间还未开启，要现在邀请Ta吗？`,
           );
           if (confirmed) {
             // 如果用户确认，发送邀请并跳转到聊天界面
@@ -3346,11 +3842,11 @@ function initLoversSpace() {
   // 绑定新弹窗里的模式切换按钮
   const lsImageModeBtn = document.getElementById("ls-switch-to-image-mode");
   const lsTextImageModeBtn = document.getElementById(
-    "ls-switch-to-text-image-mode"
+    "ls-switch-to-text-image-mode",
   );
   const lsImageModeContent = document.getElementById("ls-image-mode-content");
   const lsTextImageModeContent = document.getElementById(
-    "ls-text-image-mode-content"
+    "ls-text-image-mode-content",
   );
   lsImageModeBtn.addEventListener("click", () => {
     lsImageModeBtn.classList.add("active");
@@ -3418,29 +3914,19 @@ function initLoversSpace() {
 
   // 情侣空间相册事件监听
   document.getElementById("ls-album-list").addEventListener("click", (e) => {
+    // 1. 查找被点击的项目
     const item = e.target.closest(".ls-album-item");
     if (!item) return;
 
     const timestamp = parseInt(item.dataset.timestamp);
     if (isNaN(timestamp)) return;
 
-    // 检查点击的是否是删除按钮
+    // 2. 检查点击的是否是删除按钮
     if (e.target.classList.contains("ls-photo-delete-btn")) {
       handleDeleteLSPhoto(timestamp);
     } else {
-      // 否则，就是点击了图片本身，执行查看描述的逻辑
-      const chat = state.chats[activeLoversSpaceCharId];
-      if (chat && chat.loversSpaceData && chat.loversSpaceData.photos) {
-        const photo = chat.loversSpaceData.photos.find(
-          (p) => p.timestamp === timestamp
-        );
-        if (photo) {
-          showCustomAlert(
-            `照片描述 (${formatPostTimestamp(photo.timestamp)})`,
-            photo.description
-          );
-        }
-      }
+      // 3. 【修改点】点击图片本身，打开新的详情评论弹窗
+      openLSPhotoDetail(timestamp);
     }
   });
 
@@ -3495,7 +3981,7 @@ function initLoversSpace() {
           "确定要删除这条说说吗？",
           {
             confirmButtonClass: "btn-danger",
-          }
+          },
         );
         if (confirmed) {
           chat.loversSpaceData.moments.splice(momentIndex, 1);
@@ -3512,7 +3998,7 @@ function initLoversSpace() {
           "确定要删除这条评论吗？",
           {
             confirmButtonClass: "btn-danger",
-          }
+          },
         );
         if (confirmed) {
           moment.comments.splice(commentIndex, 1);
@@ -3553,7 +4039,7 @@ function initLoversSpace() {
         const letterId = letterItem.dataset.letterId;
         const chat = state.chats[activeLoversSpaceCharId];
         const letter = chat.loversSpaceData.loveLetters.find(
-          (l) => l.id === letterId
+          (l) => l.id === letterId,
         );
 
         const confirmed = await showCustomConfirm(
@@ -3561,7 +4047,7 @@ function initLoversSpace() {
           `确定要删除这封写给"${letter.recipientName}"的情书吗？`,
           {
             confirmButtonClass: "btn-danger",
-          }
+          },
         );
 
         if (confirmed) {
@@ -3692,7 +4178,7 @@ function initLoversSpace() {
         "确定要清空情侣空间的播放列表吗？",
         {
           confirmButtonClass: "btn-danger",
-        }
+        },
       );
       if (confirmed) {
         clearLSMusicPlaylist();
@@ -3735,7 +4221,7 @@ function initLoversSpace() {
     lsAudioPlayer.currentTime = (clickX / barWidth) * lsAudioPlayer.duration;
   });
 
-  // 拦截情侣空间分享列表的点击事件，不再触发"一起听"
+  // 拦截情侣空间分享列表的点击事件
   document
     .getElementById("ls-shares-list")
     .addEventListener("click", async (e) => {
@@ -3744,25 +4230,32 @@ function initLoversSpace() {
 
       const shareData = JSON.parse(item.dataset.shareData);
 
-      // 如果是歌曲，就调用我们新的播放器函数！
+      // 如果是歌曲，保持原样，打开播放器
       if (shareData.shareType === "song") {
         openLoversSpaceMusicPlayer(shareData);
       }
-      // 其他类型的分享，保持原来的逻辑
-      else if (
-        shareData.shareType === "movie" ||
-        shareData.shareType === "book"
-      ) {
-        await showCustomAlert(
-          `分享详情 - ${shareData.title}`,
-          shareData.thoughts || shareData.summary || "暂无简介"
-        );
-      } else if (shareData.shareType === "game") {
-        // 为游戏分享卡片构建一个更详细的弹窗内容
-        const gameInfo = `游戏名：${shareData.title}\n\n简介：${
-          shareData.summary || "暂无简介"
-        }\n\nTa说："${shareData.thoughts || "一起玩吧！"}"`;
-        await showCustomAlert(`分享的游戏`, gameInfo);
+      // 如果是电影、书籍、游戏，使用新的高级弹窗！
+      else if (["movie", "book", "game"].includes(shareData.shareType)) {
+        openAdvancedShareDetail(shareData); // <--- 这里调用新函数
+      }
+    });
+
+  // 绑定新弹窗的关闭按钮
+  const shareCloseBtn = document.getElementById("ls-share-detail-close-btn");
+  if (shareCloseBtn) {
+    shareCloseBtn.addEventListener("click", () => {
+      document
+        .getElementById("ls-share-detail-modal")
+        .classList.remove("visible");
+    });
+  }
+
+  // 点击新弹窗的遮罩层也能关闭
+  document
+    .getElementById("ls-share-detail-modal")
+    .addEventListener("click", (e) => {
+      if (e.target.id === "ls-share-detail-modal") {
+        e.target.classList.remove("visible");
       }
     });
 
@@ -3804,9 +4297,8 @@ function initLoversSpace() {
         const reader = new FileReader();
         reader.onload = (event) => {
           pomodoroState.tempBgDataUrl = event.target.result; // 将本地图片转为DataURL暂存起来
-          document.getElementById(
-            "pomodoro-bg-url-input"
-          ).value = `[本地图片: ${file.name}]`; // 在输入框里给个提示
+          document.getElementById("pomodoro-bg-url-input").value =
+            `[本地图片: ${file.name}]`; // 在输入框里给个提示
         };
         reader.readAsDataURL(file);
       }
@@ -3837,7 +4329,7 @@ function initLoversSpace() {
     .addEventListener("change", (e) => {
       if (e.target.name === "pomodoro-mode") {
         const durationGroup = document.getElementById(
-          "pomodoro-duration-input"
+          "pomodoro-duration-input",
         ).parentElement;
         if (e.target.value === "countup") {
           // 如果选择正计时，就隐藏时长输入框
@@ -3857,7 +4349,7 @@ function initLoversSpace() {
       if (!card) return;
       const messageBubble = card.closest(".message-bubble");
       const invitationMsg = state.chats[state.activeChatId].history.find(
-        (m) => m.timestamp === parseInt(messageBubble.dataset.timestamp)
+        (m) => m.timestamp === parseInt(messageBubble.dataset.timestamp),
       );
 
       if (
@@ -3946,7 +4438,7 @@ function initLoversSpace() {
       const messageBubble = card.closest(".message-bubble");
       // 通过时间戳找到对应的消息数据
       const invitationMsg = state.chats[state.activeChatId].history.find(
-        (m) => m.timestamp === parseInt(messageBubble.dataset.timestamp)
+        (m) => m.timestamp === parseInt(messageBubble.dataset.timestamp),
       );
 
       // 确保这是一条待处理的情侣空间邀请
@@ -3976,7 +4468,7 @@ function initLoversSpace() {
         e.target.id === "ls-next-month-btn"
       ) {
         const currentDisplay = document.getElementById(
-          "ls-current-month-display"
+          "ls-current-month-display",
         ).textContent;
         const [year, month] = currentDisplay.match(/\d+/g).map(Number);
         let newDate = new Date(year, month - 1, 1);
@@ -4059,4 +4551,105 @@ function initLoversSpace() {
   const originalEndBtn = document.getElementById("pomodoro-end-btn");
   // 最好不要 removeEventListener，因为匿名函数很难移除。
   // 我们在 endPomodoroSession 函数内部确保清理 isPaused 即可 (已在上方代码修改中隐式包含，因为 endPomodoroSession 会重置 state)
+  // --- 番茄钟 BGM 设置事件 ---
+  const bgmSourceSelect = document.getElementById("pomodoro-bgm-source-select");
+  const customPlaylistPanel = document.getElementById(
+    "pomodoro-custom-playlist-panel",
+  );
+
+  if (bgmSourceSelect) {
+    bgmSourceSelect.addEventListener("change", (e) => {
+      // 只有选择自定义时才显示面板
+      customPlaylistPanel.style.display =
+        e.target.value === "custom" ? "block" : "none";
+    });
+  }
+
+  // 绑定添加本地音乐按钮
+  const addBgmLocalBtn = document.getElementById("pomo-add-bgm-local");
+  const bgmFileInput = document.getElementById("pomo-bgm-file-input");
+  if (addBgmLocalBtn) {
+    addBgmLocalBtn.addEventListener("click", () => bgmFileInput.click());
+  }
+  if (bgmFileInput) {
+    bgmFileInput.addEventListener("change", (e) => {
+      const files = Array.from(e.target.files);
+      files.forEach((file) => {
+        // 存入自定义列表
+        pomodoroCustomPlaylist.push({
+          name: file.name,
+          src: file, // 这是一个 File 对象
+          isLocal: true,
+        });
+      });
+      renderPomodoroCustomListUI();
+      e.target.value = null;
+    });
+  }
+
+  // 绑定添加URL按钮
+  const addBgmUrlBtn = document.getElementById("pomo-add-bgm-url");
+  if (addBgmUrlBtn) {
+    addBgmUrlBtn.addEventListener("click", async () => {
+      const url = await showCustomPrompt(
+        "添加音乐",
+        "请输入音乐的网络链接 (URL):",
+      );
+      if (url && url.trim()) {
+        const name = await showCustomPrompt("音乐名称", "给这首歌起个名字:");
+        pomodoroCustomPlaylist.push({
+          name: name || "未知歌曲",
+          src: url.trim(),
+          isLocal: false,
+        });
+        renderPomodoroCustomListUI();
+      }
+    });
+  }
+
+  // 绑定清空按钮
+  const clearBgmBtn = document.getElementById("pomo-clear-bgm");
+  if (clearBgmBtn) {
+    clearBgmBtn.addEventListener("click", () => {
+      pomodoroCustomPlaylist = [];
+      renderPomodoroCustomListUI();
+    });
+  }
+  // --- 番茄钟 BGM 运行时控制事件 ---
+
+  // 1. 计时界面的音乐按钮
+  const musicMenuBtn = document.getElementById("pomodoro-music-btn");
+  if (musicMenuBtn) {
+    musicMenuBtn.addEventListener("click", openPomodoroMusicModal);
+  }
+
+  // 2. 音乐面板内的控制按钮
+  document
+    .getElementById("close-pomo-music-modal")
+    .addEventListener("click", () => {
+      document
+        .getElementById("pomodoro-music-modal")
+        .classList.remove("visible");
+    });
+  document
+    .getElementById("pomo-music-prev")
+    .addEventListener("click", playPrevPomoMusic);
+  document
+    .getElementById("pomo-music-next")
+    .addEventListener("click", playNextPomoMusic);
+  document
+    .getElementById("pomo-music-play")
+    .addEventListener("click", togglePomoMusic);
+  // --- 绑定照片详情弹窗事件 ---
+  document
+    .getElementById("ls-photo-detail-close-btn")
+    .addEventListener("click", () => {
+      document
+        .getElementById("ls-photo-detail-modal")
+        .classList.remove("visible");
+    });
+
+  document
+    .getElementById("ls-photo-comment-send-btn")
+    .addEventListener("click", handleSendLSPhotoComment);
 }

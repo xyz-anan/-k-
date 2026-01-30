@@ -68,6 +68,7 @@
     <script src="weibo.js" defer></script>
     <script src="date.js" defer></script>
     <script src="studio.js" defer></script>
+    <script src="sw.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/darkreader@4.9.84/darkreader.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
@@ -95,9 +96,12 @@
       </div>
       <div id="notification-bar">
         <img id="notification-avatar" src="" />
+        <!-- 这里就是头像 -->
         <div id="notification-content">
           <div class="name"></div>
+          <!-- 名字 -->
           <div class="message"></div>
+          <!-- 消息 -->
         </div>
       </div>
 
@@ -140,6 +144,7 @@
       <div id="lock-screen-background-blur" style="display: none"></div>
 
       <div id="home-screen" class="screen active">
+        <div id="desktop-edit-done-btn">完成</div>
         <div class="home-screen-slider">
           <!-- 第一页，把原来的内容都放进来 -->
           <div class="home-page">
@@ -374,7 +379,6 @@
                 </div>
                 <span class="label">X社交</span>
               </div>
-
               <div style="position: absolute; top: 100px; right: 85px">
                 <div
                   class="desktop-app-icon"
@@ -388,6 +392,54 @@
                     />
                   </div>
                   <span class="label">游戏大厅</span>
+                </div>
+              </div>
+            </div>
+            <!-- === 新版响应式透明音乐组件 === -->
+            <div class="middle-layout-container">
+              <div id="glass-music-widget">
+                <div class="widget-main-row">
+                  <!-- 左侧：长方形圆角图片 -->
+                  <div class="rect-cover-wrapper">
+                    <img
+                      id="music-rect-img"
+                      src="https://i.postimg.cc/k495F4W5/profile-banner.jpg"
+                      class="editable-image cover-img"
+                      title="点击更换封面"
+                    />
+                  </div>
+
+                  <!-- 右侧：透明水晶唱片 (重叠) -->
+                  <div class="glass-record-wrapper">
+                    <div class="glass-disc">
+                      <!-- 唱片中间的图片 -->
+                      <img
+                        id="music-record-img"
+                        src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg"
+                        class="editable-image disc-center-img"
+                        title="点击更换唱片图片"
+                      />
+                      <!-- 唱片的高光纹理 -->
+                      <div class="disc-highlight"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 下方：文字和音浪 -->
+                <div class="widget-footer-row">
+                  <div
+                    id="music-text-line"
+                    class="music-title-text editable-text"
+                    contenteditable="true"
+                  >
+                    点击编辑歌名
+                  </div>
+                  <!-- 律动音浪 (已增加条数以变宽) -->
+                  <div class="music-wave-bars" id="custom-wide-wave">
+                    <i></i><i></i><i></i><i></i><i></i> <i></i><i></i><i></i
+                    ><i></i><i></i> <i></i><i></i><i></i><i></i><i></i> <i></i
+                    ><i></i><i></i><i></i><i></i>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1213,8 +1265,53 @@
                   <span class="toggle-switch-text" style="font-weight: bold"
                     >开启系统弹窗</span
                   >
-                  <div style="font-size: 12px; color: #888; margin-top: 4px">
-                    iOS需添加到主屏幕，安卓需授权
+                  <!-- ▼▼▼ 修改后的布局：将按钮和提示语放在一行，样式更精致 ▼▼▼ -->
+                  <div
+                    style="
+                      font-size: 12px;
+                      color: #888;
+                      margin-top: 6px;
+                      display: flex;
+                      align-items: center;
+                    "
+                  >
+                    <span>iOS需添加到主屏幕，安卓需授权</span>
+                    <button
+                      id="check-notification-perm-btn"
+                      style="
+                        margin-left: 10px;
+                        padding: 2px 10px;
+                        background-color: rgba(0, 123, 255, 0.1);
+                        color: #007bff;
+                        border: 1px solid rgba(0, 123, 255, 0.2);
+                        border-radius: 12px;
+                        font-size: 11px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 3px;
+                      "
+                    >
+                      <span>🔍</span> 检测权限
+                    </button>
+                    <button
+                      id="test-system-notification-btn"
+                      style="
+                        margin-left: 5px;
+                        padding: 2px 10px;
+                        background-color: rgba(40, 167, 69, 0.1);
+                        color: #28a745;
+                        border: 1px solid rgba(40, 167, 69, 0.2);
+                        border-radius: 12px;
+                        font-size: 11px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 3px;
+                      "
+                    >
+                      <span>🔔</span> 测试发送
+                    </button>
                   </div>
                 </div>
                 <label class="toggle-switch">
@@ -1347,6 +1444,27 @@
                     测试
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+          <!-- 4.5. Pollinations 生图卡片 (新增) -->
+          <div class="moe-card">
+            <div class="moe-card-header">
+              <span class="icon">🌸</span>
+              <h3>Pollinations 生图</h3>
+            </div>
+            <div class="moe-card-body">
+              <div class="form-group">
+                <label>API Key (可选，用于高级功能/去水印)</label>
+                <input
+                  type="password"
+                  id="pollinations-api-key"
+                  placeholder="Bearer ..."
+                  class="moe-input"
+                />
+                <p style="font-size: 12px; color: #888; margin-top: 5px">
+                  * 如果留空，将使用免费公开接口 (可能包含水印或受限)。
+                </p>
               </div>
             </div>
           </div>
@@ -1577,6 +1695,27 @@
             >
               <span>📖</span> 兔k写的一些教程
             </a>
+          </div>
+
+          <div style="margin: 10px 0; text-align: center">
+            <button
+              onclick="window.openBugStation()"
+              style="
+                background: #fff0f6;
+                color: #eb2f96;
+                border: 2px dashed #ffadd2;
+                border-radius: 15px;
+                padding: 8px 20px;
+                font-size: 13px;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+              "
+            >
+              🚑 报错急救站
+              <span style="font-size: 10px; opacity: 0.7">(点我复制错误)</span>
+            </button>
           </div>
 
           <!-- 底部留白，防止被悬浮按钮遮挡 -->
@@ -2778,6 +2917,13 @@
               >
                 重置
               </button>
+              <button
+                id="manage-char-css-btn"
+                class="upload-btn-pill"
+                style="background-color: #ff9800; color: white"
+              >
+                清理角色CSS
+              </button>
               <input
                 type="file"
                 id="import-theme-input"
@@ -2927,6 +3073,25 @@
                   />
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ★★★ 新增：路人头像库卡片 ★★★ -->
+        <div class="settings-group-card">
+          <div class="settings-section-title">👥 全局路人头像库</div>
+          <div class="setting-item">
+            <label>用于生成随机NPC、评论区的头像</label>
+            <div class="moe-btn-group">
+              <button
+                id="manage-passerby-avatars-btn"
+                class="moe-btn-secondary"
+              >
+                📂 管理图库
+              </button>
+              <button id="add-passerby-avatar-btn" class="moe-btn-secondary">
+                ➕ 添加头像
+              </button>
             </div>
           </div>
         </div>
@@ -5070,6 +5235,24 @@
               class="pomodoro-controls"
               style="display: flex; gap: 15px; margin-top: 20px"
             >
+              <!-- 新的萌系音乐按钮 -->
+              <button id="pomodoro-music-btn" title="音乐歌单">
+                <!-- 这里用一个SVG图标代替简单的音符字符，更精致 -->
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M9 18V5l12-2v13"></path>
+                  <circle cx="6" cy="18" r="3"></circle>
+                  <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+              </button>
               <button
                 id="pomodoro-pause-btn"
                 style="background-color: #ffca28; color: #fff"
@@ -5435,6 +5618,7 @@
               </div>
             </div>
 
+            <!-- 原有代码 -->
             <div class="form-group">
               <label for="max-memory">上下文记忆条数</label>
               <input
@@ -5443,6 +5627,33 @@
                 value="10"
                 class="moe-input"
               />
+            </div>
+
+            <div class="form-group">
+              <label>回复条数区间 (Min - Max)</label>
+              <div style="display: flex; gap: 10px; align-items: center">
+                <input
+                  type="number"
+                  id="min-reply-count-input"
+                  class="moe-input"
+                  min="1"
+                  placeholder="最小"
+                  style="text-align: center"
+                />
+                <span>至</span>
+                <input
+                  type="number"
+                  id="max-reply-count-input"
+                  class="moe-input"
+                  min="1"
+                  placeholder="最大"
+                  style="text-align: center"
+                />
+                <span>条</span>
+              </div>
+              <p style="font-size: 12px; color: #999; margin-top: 5px">
+                建议设置: 单聊 2-5，群聊 3-8。
+              </p>
             </div>
 
             <div class="info-tags">
@@ -6429,6 +6640,11 @@
 
     <audio id="ringtone-player" loop></audio>
     <audio id="notification-sound-player" preload="auto"></audio>
+    <audio
+      id="strong-keep-alive-player"
+      loop
+      src="https://files.catbox.moe/7jn7bp.mp3"
+    ></audio>
 
     <div id="create-post-modal" class="modal">
       <div class="modal-content" style="height: auto; max-height: 90%">
@@ -8879,6 +9095,85 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               value="5"
               min="0"
             />
+          </div>
+          <div class="form-group">
+            <label>背景音乐 (BGM)</label>
+            <select
+              id="pomodoro-bgm-source-select"
+              style="
+                width: 100%;
+                padding: 8px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+              "
+            >
+              <option value="none">🔕 静音 / 不播放</option>
+              <option value="global">🎵 一起听播放列表</option>
+              <option value="custom">📂 自定义番茄钟歌单</option>
+            </select>
+
+            <!-- 自定义歌单管理面板 (默认隐藏) -->
+            <div
+              id="pomodoro-custom-playlist-panel"
+              style="
+                display: none;
+                background: #f5f5f5;
+                padding: 10px;
+                border-radius: 8px;
+              "
+            >
+              <div
+                id="pomodoro-custom-list"
+                style="
+                  max-height: 100px;
+                  overflow-y: auto;
+                  margin-bottom: 8px;
+                  font-size: 13px;
+                "
+              >
+                <p style="color: #999; text-align: center; margin: 10px 0">
+                  暂无歌曲
+                </p>
+              </div>
+              <div style="display: flex; gap: 5px">
+                <button
+                  id="pomo-add-bgm-local"
+                  class="form-button-secondary"
+                  style="margin: 0; padding: 5px 10px; font-size: 12px"
+                >
+                  + 本地
+                </button>
+                <button
+                  id="pomo-add-bgm-url"
+                  class="form-button-secondary"
+                  style="margin: 0; padding: 5px 10px; font-size: 12px"
+                >
+                  + URL
+                </button>
+                <button
+                  id="pomo-clear-bgm"
+                  class="form-button-secondary"
+                  style="
+                    margin: 0;
+                    padding: 5px 10px;
+                    font-size: 12px;
+                    color: #ff3b30;
+                    border-color: #ff3b30;
+                  "
+                >
+                  清空
+                </button>
+              </div>
+              <!-- 隐藏的文件输入框 -->
+              <input
+                type="file"
+                id="pomo-bgm-file-input"
+                accept="audio/*"
+                multiple
+                style="display: none"
+              />
+            </div>
           </div>
 
           <div class="form-group">
@@ -14617,6 +14912,449 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         </div>
       </div>
     </div>
+    <!-- ★★★ 新增：路人头像库管理弹窗 ★★★ -->
+    <div id="passerby-avatar-manager-modal" class="modal">
+      <div class="modal-content" style="height: 70%">
+        <div class="modal-header">
+          <span>路人头像库 (<span id="passerby-count">0</span>)</span>
+          <div class="header-actions">
+            <button
+              id="bulk-add-passerby-btn"
+              class="action-button"
+              style="font-size: 14px"
+            >
+              批量添加
+            </button>
+          </div>
+        </div>
+        <div
+          class="modal-body"
+          style="padding: 15px; background-color: #f5f5f5"
+        >
+          <div
+            id="passerby-avatar-grid"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+              gap: 10px;
+            "
+          >
+            <!-- JS动态生成 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="save"
+            id="close-passerby-manager-btn"
+            style="width: 100%"
+          >
+            关闭
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 隐藏的文件上传控件 -->
+    <input
+      type="file"
+      id="passerby-upload-input"
+      accept="image/*"
+      multiple
+      hidden
+    />
+
+    <div id="bug-report-modal" class="modal">
+      <div class="modal-content" style="height: 70%; max-height: 600px">
+        <!-- 头部 -->
+        <div class="modal-header">
+          <span>🏩 报错急救站</span>
+          <button
+            class="nurse-btn nurse-btn-clear"
+            onclick="window.clearBugReport()"
+          >
+            🧹 清扫
+          </button>
+        </div>
+
+        <!-- 内容区 -->
+        <div
+          class="modal-body"
+          style="
+            padding: 15px;
+            background: #fff0f6;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <p style="font-size: 12px; color: #eb2f96; margin-bottom: 5px">
+            👇 如果遇到问题，请复制下方的红字发给开发者：
+          </p>
+          <textarea id="error-log-viewer" readonly></textarea>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div
+          class="modal-footer"
+          style="background: #fff0f6; justify-content: space-between"
+        >
+          <button
+            class="nurse-btn nurse-btn-close"
+            onclick="window.closeBugStation()"
+          >
+            关 闭
+          </button>
+          <button
+            class="nurse-btn nurse-btn-copy"
+            onclick="window.copyBugReport()"
+          >
+            📋 一键复制报错
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- [新] 萌系番茄钟音乐控制面板 -->
+    <div id="pomodoro-music-modal" class="modal">
+      <div
+        class="modal-content moe-music-modal-content"
+        style="height: 65%; width: 320px; padding: 0"
+      >
+        <!-- 头部 -->
+        <div class="moe-music-header">
+          <span>✨ 专注旋律 ✨</span>
+        </div>
+
+        <div
+          class="modal-body"
+          style="
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          "
+        >
+          <!-- 上半部分：唱片机播放器 -->
+          <div class="pomo-player-container">
+            <div class="pomo-disc-wrapper">
+              <div id="pomo-disc-anim" class="pomo-disc">
+                <!-- 封面图 -->
+                <img
+                  id="pomo-music-cover"
+                  src="https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png"
+                />
+              </div>
+            </div>
+
+            <div class="pomo-track-info">
+              <h3 id="pomo-music-title">未播放</h3>
+              <p id="pomo-music-artist">点击播放开始专注</p>
+            </div>
+
+            <div class="pomo-controls-row">
+              <button class="pomo-ctrl-btn" id="pomo-music-prev" title="上一首">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                  <line x1="5" y1="19" x2="5" y2="5"></line>
+                </svg>
+              </button>
+
+              <button class="pomo-play-btn" id="pomo-music-play">
+                <!-- 播放图标 -->
+                <svg
+                  id="pomo-icon-play"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  stroke="none"
+                >
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <!-- 暂停图标 (默认隐藏) -->
+                <svg
+                  id="pomo-icon-pause"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  stroke="none"
+                  style="display: none"
+                >
+                  <rect x="6" y="4" width="4" height="16"></rect>
+                  <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+              </button>
+
+              <button class="pomo-ctrl-btn" id="pomo-music-next" title="下一首">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                  <line x1="19" y1="5" x2="19" y2="19"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 下半部分：播放列表 -->
+          <div id="pomo-music-list" class="pomo-playlist">
+            <!-- JS生成列表项 -->
+          </div>
+        </div>
+
+        <div class="modal-footer" style="border: none; padding: 10px 20px 20px">
+          <button
+            class="save"
+            id="close-pomo-music-modal"
+            style="
+              width: 100%;
+              border-radius: 20px;
+              background: #e0e0e0;
+              color: #666;
+              border: none;
+            "
+          >
+            收起面板
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 在 body 结束标签前，其他 modal 的旁边添加 -->
+
+    <!-- 情侣空间-照片详情与评论弹窗 (萌系升级版) -->
+    <div id="ls-photo-detail-modal" class="modal">
+      <div class="modal-content ls-photo-modal-content">
+        <!-- 1. 顶部标题栏 -->
+        <div class="ls-photo-modal-header">
+          <span>✨ 甜蜜瞬间 ✨</span>
+          <span id="ls-photo-detail-close-btn" class="close-btn">×</span>
+        </div>
+
+        <!-- 2. 中间滚动区域 -->
+        <div class="ls-photo-modal-body">
+          <!-- 图片展示区 (类似拍立得风格) -->
+          <div class="ls-polaroid-container">
+            <div class="ls-photo-wrapper">
+              <img id="ls-photo-detail-img" src="" alt="照片" />
+            </div>
+            <div id="ls-photo-detail-desc" class="ls-photo-desc"></div>
+            <div id="ls-photo-detail-meta" class="ls-photo-date"></div>
+          </div>
+
+          <!-- 评论区标题 -->
+          <div class="ls-comments-section-title">
+            <span class="icon">💬</span> 悄悄话
+          </div>
+
+          <!-- 评论列表 -->
+          <div id="ls-photo-comments-list" class="ls-comments-list">
+            <!-- JS生成评论 -->
+          </div>
+        </div>
+
+        <!-- 3. 底部输入栏 -->
+        <div class="ls-photo-modal-footer">
+          <input
+            type="text"
+            id="ls-photo-comment-input"
+            placeholder="写下你的想法( •̀ ω •́ )✧..."
+          />
+          <button id="ls-photo-comment-send-btn">发送</button>
+        </div>
+      </div>
+    </div>
+    <!-- 情侣空间 - 分享详情专用弹窗 (Ver 2.0 萌系版) -->
+    <div id="ls-share-detail-modal" class="modal">
+      <div class="modal-content ls-share-card-container">
+        <!-- 1. 顶部装饰区 -->
+        <div class="ls-share-header-bg"></div>
+
+        <!-- 2. 头像与徽章 (核心视觉) -->
+        <div class="ls-share-avatar-wrapper">
+          <img id="ls-share-char-avatar" src="" class="ls-share-avatar-img" />
+          <!-- 类型徽章 -->
+          <div class="ls-share-badge" id="ls-share-badge-icon">🎬</div>
+        </div>
+
+        <!-- 3. 内容区域 -->
+        <div class="ls-share-content-body">
+          <!-- 推荐语气泡 (像是在说话) -->
+          <div class="ls-share-speech-bubble">
+            <div class="bubble-arrow"></div>
+            <p id="ls-share-thoughts">在这里显示 TA 的感想...</p>
+          </div>
+
+          <!-- 作品信息卡片 -->
+          <div class="ls-share-info-box">
+            <h3 id="ls-share-detail-title">作品标题</h3>
+            <span class="ls-share-pill" id="ls-share-type-text">电影</span>
+            <div class="ls-share-divider"></div>
+            <div class="ls-share-summary-text" id="ls-share-summary">
+              这里是作品的简介内容...
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 底部按钮 -->
+        <div class="ls-share-footer-action">
+          <button id="ls-share-detail-close-btn">收到安利 (o´ω`o)ﾉ</button>
+        </div>
+      </div>
+    </div>
+    <!-- 莫兰迪风娃娃机充值弹窗 -->
+    <div id="claw-machine-modal" class="modal">
+      <!-- 容器背景改为透明，去除默认阴影 -->
+      <div
+        class="modal-content"
+        style="
+          background: transparent;
+          box-shadow: none;
+          border: none;
+          padding: 0;
+          width: 380px;
+          height: 720px;
+          overflow: visible;
+          display: flex;
+          justify-content: center;
+        "
+      >
+        <div id="claw-machine-body" class="morandi-style">
+          <!-- ★★★ 顶部功能栏：左关闭、中标题、右刷新 ★★★ -->
+          <div class="machine-header-bar">
+            <!-- 左侧：关闭按钮 (移到这里，远离刷新) -->
+            <div class="action-group left">
+              <button
+                id="close-claw-machine"
+                class="icon-btn close-header-btn"
+                title="退出娃娃机"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- 中间：标题 + 设置按钮 -->
+            <div class="title-group">
+              <div class="header-title">✨ LUCK BOX ✨</div>
+              <button
+                id="claw-manage-btn"
+                class="icon-btn settings-btn"
+                title="管理娃娃库"
+              >
+                ⚙️
+              </button>
+            </div>
+
+            <!-- 右侧：刷新按钮 -->
+            <div class="action-group right">
+              <button
+                id="claw-restart-btn"
+                class="icon-btn refresh-btn"
+                title="刷新/换一批"
+              >
+                ↻
+              </button>
+            </div>
+          </div>
+
+          <!-- 概率仪表盘 -->
+          <div class="prob-dashboard">
+            <div class="pie-chart-wrapper">
+              <div id="prob-pie-chart" class="pie-chart"></div>
+              <div class="pie-hole"></div>
+            </div>
+            <div id="prob-legend" class="chart-legend"></div>
+          </div>
+
+          <!-- 玻璃仓 -->
+          <div class="machine-window glass-effect">
+            <div class="reflection-light"></div>
+            <div id="machine-claw">
+              <div class="claw-line"></div>
+              <div class="claw-hand">
+                <div class="claw-finger left"></div>
+                <div class="claw-finger right"></div>
+              </div>
+            </div>
+            <div id="doll-pool"></div>
+            <div class="machine-chute">PUT</div>
+          </div>
+
+          <!-- 控制台 -->
+          <div class="machine-controls glass-effect">
+            <div class="control-group">
+              <div class="joystick-base">
+                <div id="machine-joystick" class="joystick-stick">
+                  <div class="joystick-ball"></div>
+                </div>
+              </div>
+            </div>
+            <div class="display-screen">
+              <span class="label">COINS</span>
+              <span id="claw-machine-balance" class="value">0.00</span>
+            </div>
+            <div class="btn-group">
+              <button id="claw-grab-btn" class="pearl-btn">GO</button>
+            </div>
+          </div>
+
+          <div class="machine-base"></div>
+
+          <!-- 注意：原来的底部悬浮关闭按钮代码已经删除了 -->
+        </div>
+      </div>
+    </div>
+    <div id="doll-manager-modal" class="modal">
+      <div class="modal-content" style="height: 70%">
+        <div class="modal-header">
+          <span>管理娃娃图鉴</span>
+          <div class="header-actions">
+            <button id="add-doll-btn" class="action-button">添加</button>
+            <button
+              id="reset-dolls-btn"
+              class="action-button"
+              style="margin-right: 5px"
+            >
+              重置默认
+            </button>
+          </div>
+        </div>
+        <div class="modal-body" style="background: #f5f5f5; padding: 15px">
+          <div
+            id="doll-manager-grid"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+              gap: 10px;
+            "
+          >
+            <!-- JS动态生成 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="save" id="close-doll-manager-btn" style="width: 100%">
+            完成
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 隐藏的文件上传控件 -->
+    <input
+      type="file"
+      id="doll-upload-input"
+      accept="image/*"
+      multiple
+      hidden
+    />
 
     <div id="inner-voice-modal" class="modal">
       <!-- 心声主面板 -->
@@ -14810,8 +15548,100 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
     </div>
 
     <script>
-      // ▼▼▼ 把这一整块超长的塔罗牌数据，粘贴到 const GEMINI_API_URL 的正上方 ▼▼▼
+      (function () {
+        window.errorLogs = [];
 
+        // === 核心逻辑：只抓错误 ===
+        function captureError(source, msg) {
+          const time = new Date().toLocaleTimeString();
+          const logLine = `⏰ [${time}] ${source}\n❌ ${msg}\n----------------------------------\n`;
+          window.errorLogs.push(logLine);
+
+          // 实时更新UI
+          const textarea = document.getElementById("error-log-viewer");
+          if (textarea) {
+            textarea.value = window.errorLogs.join("");
+            textarea.scrollTop = textarea.scrollHeight;
+          }
+        }
+
+        // 1. 劫持 console.error (代码里主动打印的红字)
+        const originalError = console.error;
+        console.error = function (...args) {
+          // 将对象转为字符串，防止显示 [object Object]
+          const msg = args
+            .map((a) => {
+              try {
+                return typeof a === "object" ? JSON.stringify(a) : String(a);
+              } catch (e) {
+                return String(a);
+              }
+            })
+            .join(" ");
+          captureError("Console Error", msg);
+          originalError.apply(console, args);
+        };
+
+        // 2. 捕获运行时的崩溃 (语法错误、未定义变量等)
+        window.addEventListener("error", function (event) {
+          captureError(
+            "System Crash",
+            `${event.message}\n📍 位置: ${event.filename}:${event.lineno}`,
+          );
+        });
+
+        // 3. 捕获 Promise 报错 (API请求失败等)
+        window.addEventListener("unhandledrejection", function (event) {
+          let reason = event.reason;
+          if (typeof reason === "object")
+            reason = reason.message || JSON.stringify(reason);
+          captureError("Unhandled Promise", reason);
+        });
+      })();
+
+      // 打开面板
+      window.openBugStation = function () {
+        const modal = document.getElementById("bug-report-modal");
+        const textarea = document.getElementById("error-log-viewer");
+        const emptyTip = "✨ 一切正常！没有检测到任何报错 (好耶！)";
+
+        if (window.errorLogs.length === 0) {
+          textarea.value = emptyTip;
+          textarea.style.color = "#52c41a"; // 绿色
+          textarea.style.textAlign = "center";
+          textarea.style.paddingTop = "50px";
+        } else {
+          textarea.value = window.errorLogs.join("");
+          textarea.style.color = "#ff4d4f"; // 红色
+          textarea.style.textAlign = "left";
+          textarea.style.paddingTop = "15px";
+        }
+
+        modal.classList.add("visible");
+      };
+
+      // 复制
+      window.copyBugReport = function () {
+        const textarea = document.getElementById("error-log-viewer");
+        if (textarea.value.includes("一切正常")) {
+          alert("没有报错，不用复制啦~");
+          return;
+        }
+        textarea.select();
+        document.execCommand("copy");
+        alert("💉 报错信息已复制！快发给开发者急救！");
+      };
+
+      // 清空
+      window.clearBugReport = function () {
+        window.errorLogs = [];
+        window.openBugStation(); // 刷新显示
+      };
+
+      // 关闭
+      window.closeBugStation = function () {
+        document.getElementById("bug-report-modal").classList.remove("visible");
+      };
       const TAROT_DECK = [
         {
           name: "愚人",
@@ -15613,9 +16443,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             } else if (itemType === "update_status") {
               return [
                 {
-                  text: `${time}[${text}] ${obj.status_text}(${
-                    obj.is_busy ? "忙碌/离开" : "空闲"
-                  })`,
+                  text: `${time}[${text}] ${obj.status_text}(${obj.is_busy ? "忙碌/离开" : "空闲"})`,
                 },
               ];
             } else if (itemType === "change_music") {
@@ -15649,9 +16477,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             } else if (itemType === "waimai_response") {
               return [
                 {
-                  text: `${time}[${text[obj.status]}] ${
-                    obj.status === "paid" ? "同意" : "拒绝"
-                  }`,
+                  text: `${time}[${text[obj.status]}] ${obj.status === "paid" ? "同意" : "拒绝"}`,
                 },
               ];
             } else if (itemType === "video_call_request") {
@@ -15659,9 +16485,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             } else if (itemType === "video_call_request") {
               return [
                 {
-                  text: `${time}[${text[obj.decision]}] ${
-                    obj.decision === "accept" ? "同意" : "拒绝"
-                  }`,
+                  text: `${time}[${text[obj.decision]}] ${obj.decision === "accept" ? "同意" : "拒绝"}`,
                 },
               ];
             } else if (itemType === "qzone_post") {
@@ -15670,9 +16494,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   text: `${time}[${text[obj.postType]}] ${
                     obj.postType === "shuoshuo"
                       ? `${obj.content}`
-                      : `图片描述是:${obj.hiddenContent} ${
-                          obj.publicText ? `文案是: ${obj.publicText}` : ""
-                        }`
+                      : `图片描述是:${obj.hiddenContent} ${obj.publicText ? `文案是: ${obj.publicText}` : ""}`
                   }`,
                 },
               ];
@@ -15693,9 +16515,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             } else if (itemType === "friend_request_response") {
               return [
                 {
-                  text: `${time}[${text}] 结果是:${
-                    obj.decision === "accept" ? "同意" : "拒绝"
-                  }`,
+                  text: `${time}[${text}] 结果是:${obj.decision === "accept" ? "同意" : "拒绝"}`,
                 },
               ];
             } else if (itemType === "change_avatar") {
@@ -15948,7 +16768,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           },
         ];
 
-        const BLOCKED_API_SITES = ["api.pisces.ink", "aiapi.qzz.io"];
+        const BLOCKED_API_SITES = [
+          "api.pisces.ink",
+          "aiapi.qzz.io",
+          "api520.pro",
+          "api521.pro",
+          "api522.pro",
+        ];
 
         // --- 已修正 ---
 
@@ -16047,9 +16873,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               searchTerm += ` ${singer.replace(/\s/g, "")}`;
             }
 
-            const apiUrl = `https://api.vkeys.cn/v2/music/netease?word=${encodeURIComponent(
-              searchTerm,
-            )}`;
+            const apiUrl = `https://api.vkeys.cn/v2/music/netease?word=${encodeURIComponent(searchTerm)}`;
 
             console.log("正在尝试直接请求:", apiUrl); // 添加一条日志，方便我们调试
 
@@ -16158,9 +16982,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           try {
             name = name.replace(/\s/g, "");
             const result = await Http_Get(
-              `https://api.vkeys.cn/v2/music/tencent?word=${encodeURIComponent(
-                name,
-              )}`,
+              `https://api.vkeys.cn/v2/music/tencent?word=${encodeURIComponent(name)}`,
             );
             if (!result?.data?.length) return [];
             return result.data
@@ -16873,7 +17695,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           "kk-checkin": "kk查岗",
           studio: "lrq小剧场",
         };
-        const STICKER_REGEX = /^(https?:\/\/.+|data:image)/;
+        const STICKER_REGEX =
+          /^(data:image\/)|(https?:\/\/.*?\.(?:png|jpg|jpeg|gif|webp|svg|bmp|ico|tiff))|(https?:\/\/.*(?:catbox|postimg|imgbb|sinaimg|telegraph|wx[1-4])\..*)/i;
         const MESSAGE_RENDER_WINDOW = 50;
         let currentRenderedCount = 0;
         let lastKnownBatteryLevel = 1;
@@ -17081,7 +17904,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         function initDatabase(userId) {
           // 数据库名带上用户ID，实现每个人数据隔离
           db = new Dexie("GeminiChatDB");
-          db.version(61).stores({
+          db.version(62).stores({
             // 版本号从 51 升级到 52
             chats:
               "&id, isGroup, groupId, ownerId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary, settings.weiboNickname, settings.innerVoiceHideHeaderBorder, settings.innerVoiceAdopterLabelFormat, interactionStats, unlockedSymbols, settings.selectedIntimacyBadge",
@@ -17145,6 +17968,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             tukeyUserSettings: "&id",
             tukeyCustomConfig: "&id",
             auroraBooks: "++id, title, content, addedAt",
+            passerbyAvatars: "++id, url",
+            clawMachineDolls: "++id, url",
           });
           // 到这里加下面三行
           window.db = db;
@@ -18074,10 +18899,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
             let contentHtml = "";
             const publicTextHtml = post.publicText
-              ? `<div class="post-content">${post.publicText.replace(
-                  /\n/g,
-                  "<br>",
-                )}</div>`
+              ? `<div class="post-content">${post.publicText.replace(/\n/g, "<br>")}</div>`
               : "";
 
             if (post.type === "shuoshuo") {
@@ -18210,9 +19032,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                                 <span class="action-icon favorite ${
                                   isFavoritedByUser ? "active" : ""
                                 }"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg></span>
-                                <span class="action-icon summon-npc" data-post-id="${
-                                  post.id
-                                }" data-author-id="${
+                                <span class="action-icon summon-npc" data-post-id="${post.id}" data-author-id="${
                                   post.authorId
                                 }" title="召唤NPC评论"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
                                 </div>
@@ -18365,16 +19185,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               headerHtml = `<img src="${authorAvatar}" class="avatar"><div class="info"><div class="name">${authorNickname}</div></div>`;
 
               const publicTextHtml = post.publicText
-                ? `<div class="post-content">${post.publicText.replace(
-                    /\n/g,
-                    "<br>",
-                  )}</div>`
+                ? `<div class="post-content">${post.publicText.replace(/\n/g, "<br>")}</div>`
                 : "";
               if (post.type === "shuoshuo") {
-                contentHtml = `<div class="post-content">${post.content.replace(
-                  /\n/g,
-                  "<br>",
-                )}</div>`;
+                contentHtml = `<div class="post-content">${post.content.replace(/\n/g, "<br>")}</div>`;
               } else if (post.type === "image_post" && post.imageUrl) {
                 contentHtml = publicTextHtml
                   ? `${publicTextHtml}<div style="margin-top:10px;"><img src="${post.imageUrl}" class="chat-image"></div>`
@@ -18798,9 +19612,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const url = URL.createObjectURL(blob);
             const link = Object.assign(document.createElement("a"), {
               href: url,
-              download: `EPhone-Full-Backup-${
-                new Date().toISOString().split("T")[0]
-              }.json`,
+              download: `EPhone-Full-Backup-${new Date().toISOString().split("T")[0]}.json`,
             });
             document.body.appendChild(link);
             link.click();
@@ -19009,9 +19821,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
 
             console.log(
-              `[GitHub] 文件大小: ${(totalSize / 1024 / 1024).toFixed(
-                2,
-              )} MB, 分片数: ${totalChunks}`,
+              `[GitHub] 文件大小: ${(totalSize / 1024 / 1024).toFixed(2)} MB, 分片数: ${totalChunks}`,
             );
 
             // 如果只有1片，走普通上传；如果多片，走分片上传
@@ -19036,10 +19846,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 const end = Math.min(start + CHUNK_SIZE, totalSize);
                 const chunkContent = fullBase64.substring(start, end);
 
-                const partName = `${githubPath}.${String(i + 1).padStart(
-                  3,
-                  "0",
-                )}`;
+                const partName = `${githubPath}.${String(i + 1).padStart(3, "0")}`;
 
                 if (!isAuto) {
                   console.log(`正在上传分片 ${i + 1}/${totalChunks} ...`);
@@ -20075,6 +20882,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             minimaxApiKey: "",
             minimaxProvider: "cn",
             minimaxSpeechModel: "speech-01-turbo",
+            pollinationsApiKey: "", // <--- 新增这一行
           };
 
           // 兼容旧数据，如果加载的设置里没有温度，也给一个默认值
@@ -20266,70 +21074,110 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const minutes = String(date.getMinutes()).padStart(2, "0");
           return `${hours}:${minutes}`;
         }
-        // === 修改后的 showNotification 函数 ===
-        function showNotification(chatId, messageContent) {
+        /**
+         * 显示系统/应用内通知
+         * @param {string} chatId - 聊天ID
+         * @param {string} messageContent - 消息内容
+         * @param {string} specificAvatarUrl - [新增参数] 指定的具体头像URL（用于群聊显示发言人头像）
+         */
+        async function showNotification(
+          chatId,
+          messageContent,
+          specificAvatarUrl = null,
+        ) {
+          // 播放音效
           playNotificationSound();
+
+          // 清除旧的应用内顶部横幅计时器
           clearTimeout(notificationTimeout);
+
           const chat = state.chats[chatId];
           if (!chat) return;
 
-          // 1. 获取头像和名称
-          const avatarUrl = chat.isGroup
-            ? chat.settings.groupAvatar || defaultGroupAvatar
-            : chat.settings.aiAvatar || defaultAvatar;
+          // 1. 准备通知数据
+          // 逻辑修改：如果传入了 specificAvatarUrl，就直接用；否则按原逻辑（群用群头像，单聊用AI头像）
+          let avatarUrl = specificAvatarUrl;
+
+          if (!avatarUrl) {
+            avatarUrl = chat.isGroup
+              ? chat.settings.groupAvatar || defaultGroupAvatar
+              : chat.settings.aiAvatar || defaultAvatar;
+          }
 
           const notifName =
             !chat.isGroup && chat.settings.remarkName
               ? chat.settings.remarkName
               : chat.name;
 
-          if (
-            "Notification" in window &&
-            Notification.permission === "granted" &&
-            state.globalSettings.enableSystemNotifications === true // <--- 核心修改
-          ) {
+          // 2. 检测是否需要发送系统弹窗 (原生通知)
+          const isSystemNotifyEnabled =
+            state.globalSettings.enableSystemNotifications === true;
+          const hasPermission =
+            "Notification" in window && Notification.permission === "granted";
+
+          if (isSystemNotifyEnabled && hasPermission) {
             const isChatActive =
+              document.getElementById("chat-interface-screen") &&
               document
                 .getElementById("chat-interface-screen")
-                .classList.contains("active") && state.activeChatId === chatId;
+                .classList.contains("active") &&
+              state.activeChatId === chatId;
 
             if (document.hidden || !isChatActive) {
+              const options = {
+                body: messageContent,
+                icon: avatarUrl, // 这里也会自动使用正确的头像
+                tag: chatId,
+                renotify: true,
+                silent: true,
+                badge:
+                  "https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg",
+              };
+
               try {
-                // 尝试发送通知
-                new Notification(notifName, {
-                  body: messageContent,
-                  icon: avatarUrl, // Android支持图标，iOS可能只显示应用图标
-                  tag: chatId, // 防止同一角色的消息无限堆叠
-                  silent: true, // 设为静音，因为我们已经有 playNotificationSound() 播放网页声音了
-                });
+                if ("serviceWorker" in navigator) {
+                  const reg = await navigator.serviceWorker.getRegistration();
+                  if (reg) {
+                    await reg.showNotification(notifName, options);
+                  } else {
+                    new Notification(notifName, options);
+                  }
+                } else {
+                  new Notification(notifName, options);
+                }
               } catch (e) {
-                console.warn("系统通知发送失败:", e);
+                console.error("系统通知发送失败:", e.message);
               }
             }
           }
-          // ---------------------------------
 
-          // 2. 原有的应用内顶部横幅逻辑 (保持不变)
+          // 3. 应用内顶部横幅 (网页内弹窗)
           const bar = document.getElementById("notification-bar");
-          document.getElementById("notification-avatar").src = avatarUrl;
+          const avatarImg = document.getElementById("notification-avatar");
 
-          document
-            .getElementById("notification-content")
-            .querySelector(".name").textContent = notifName;
-          document
-            .getElementById("notification-content")
-            .querySelector(".message").textContent = messageContent;
+          // 这里设置图片
+          if (avatarImg) avatarImg.src = avatarUrl;
 
-          const newBar = bar.cloneNode(true);
-          bar.parentNode.replaceChild(newBar, bar);
-          newBar.addEventListener("click", () => {
-            openChat(chatId);
-            newBar.classList.remove("visible");
-          });
-          newBar.classList.add("visible");
-          notificationTimeout = setTimeout(() => {
-            newBar.classList.remove("visible");
-          }, 4000);
+          const contentDiv = document.getElementById("notification-content");
+          if (contentDiv) {
+            contentDiv.querySelector(".name").textContent = notifName;
+            contentDiv.querySelector(".message").textContent = messageContent;
+          }
+
+          if (bar) {
+            const newBar = bar.cloneNode(true);
+            bar.parentNode.replaceChild(newBar, bar);
+
+            newBar.addEventListener("click", () => {
+              openChat(chatId);
+              newBar.classList.remove("visible");
+            });
+
+            newBar.classList.add("visible");
+            notificationTimeout = setTimeout(() => {
+              newBar.classList.remove("visible");
+            }, 4000);
+          }
         }
 
         /**
@@ -20784,9 +21632,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const negativePrompt = prompts.negative;
 
           console.log(
-            `📝 使用${
-              prompts.source === "character" ? "角色专属" : "系统"
-            }提示词配置`,
+            `📝 使用${prompts.source === "character" ? "角色专属" : "系统"}提示词配置`,
           );
           console.log("正面提示词:", finalPrompt);
           console.log("负面提示词:", negativePrompt);
@@ -21224,6 +22070,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           document.getElementById("novelai-api-key").value = novelaiApiKey;
           document.getElementById("novelai-details").style.display =
             novelaiEnabled ? "block" : "none";
+          document.getElementById("pollinations-api-key").value =
+            state.apiConfig.pollinationsApiKey || "";
 
           // 2. 更新后台活动相关的开关和输入框
           document.getElementById("background-activity-switch").checked =
@@ -21341,6 +22189,118 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   );
                 }
               } else {
+              }
+            });
+          }
+          const checkPermBtn = document.getElementById(
+            "check-notification-perm-btn",
+          );
+          if (checkPermBtn) {
+            const newBtn = checkPermBtn.cloneNode(true);
+            checkPermBtn.parentNode.replaceChild(newBtn, checkPermBtn);
+
+            newBtn.addEventListener("click", async () => {
+              if (!("Notification" in window)) {
+                alert(
+                  '❌ 你的浏览器/环境完全不支持系统通知 API。\n(如果是iOS，必须点击"添加到主屏幕"作为PWA运行才支持)',
+                );
+                return;
+              }
+
+              const permission = Notification.permission;
+
+              if (permission === "granted") {
+                try {
+                  const title = "权限测试";
+                  const options = { body: "恭喜！系统通知功能正常工作。" };
+
+                  // --- 核心修复：优先使用 ServiceWorker ---
+                  if ("serviceWorker" in navigator) {
+                    const reg = await navigator.serviceWorker.getRegistration();
+                    if (reg) {
+                      // 安卓 Chrome 必须走这里
+                      await reg.showNotification(title, options);
+                    } else {
+                      // 如果没有获取到 SW，尝试注册一个空的并发送
+                      try {
+                        // 尝试现场注册一个临时的
+                        const emptyWorkerContent =
+                          "self.addEventListener('install', () => self.skipWaiting());";
+                        const blob = new Blob([emptyWorkerContent], {
+                          type: "text/javascript",
+                        });
+                        const workerUrl = URL.createObjectURL(blob);
+                        const newReg =
+                          await navigator.serviceWorker.register(workerUrl);
+                        await newReg.showNotification(title, options);
+                      } catch (e) {
+                        // 实在不行，降级尝试旧方法（在安卓上这步会抛错，但被外层catch捕获）
+                        new Notification(title, options);
+                      }
+                    }
+                  } else {
+                    // iOS 或 PC 浏览器
+                    new Notification(title, options);
+                  }
+
+                  alert(
+                    "✅ 权限状态: 已授权 (granted)\n\n系统尝试发送了一条测试通知，请查看手机通知栏。\n如果没收到，请检查手机系统的“通知管理”是否屏蔽了浏览器/本应用。",
+                  );
+                } catch (e) {
+                  alert(
+                    `⚠️ 权限显示已授权，但发送失败。\n错误信息: ${e.message}`,
+                  );
+                }
+              } else if (permission === "denied") {
+                alert(
+                  "🚫 权限状态: 已拒绝 (denied)\n\n原因：你之前点击了“禁止”或系统默认禁止。\n\n解决方法：\n1. 请在浏览器地址栏点击锁图标或设置。\n2. 找到“通知”权限并重置为“询问”或“允许”。\n3. 刷新页面重试。",
+                );
+              } else if (permission === "default") {
+                alert(
+                  "❓ 权限状态: 未询问 (default)\n\n请点击右侧开关，并在弹出的浏览器窗口中点击“允许”。",
+                );
+              }
+            });
+          }
+          // ▼▼▼ 在 check-notification-perm-btn 的监听器后面，添加这段代码 ▼▼▼
+
+          const testNotifBtn = document.getElementById(
+            "test-system-notification-btn",
+          );
+          if (testNotifBtn) {
+            // 移除旧监听器 (通过克隆)
+            const newBtn = testNotifBtn.cloneNode(true);
+            testNotifBtn.parentNode.replaceChild(newBtn, testNotifBtn);
+
+            newBtn.addEventListener("click", async () => {
+              if (!("Notification" in window)) return alert("设备不支持通知");
+              if (Notification.permission !== "granted")
+                return alert("请先点击左侧按钮授权通知！");
+
+              const title = "测试消息";
+              const options = {
+                body: "如果你看到这条消息，说明安卓弹窗修复成功！",
+                icon: "https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg",
+              };
+
+              try {
+                if ("serviceWorker" in navigator) {
+                  const reg = await navigator.serviceWorker.getRegistration();
+                  if (reg) {
+                    await reg.showNotification(title, options);
+                    console.log("测试：通过 SW 发送成功");
+                  } else {
+                    alert(
+                      "错误：ServiceWorker 未注册，无法在安卓发送通知。请刷新页面重试。",
+                    );
+                    // 仅作为调试，尝试直接发送看看报错
+                    // new Notification(title, options);
+                  }
+                } else {
+                  new Notification(title, options);
+                }
+              } catch (e) {
+                alert("测试发送失败: " + e.message);
               }
             });
           }
@@ -21574,9 +22534,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           container.dataset.chatId = chat.id;
 
           const content = document.createElement("div");
-          content.className = `chat-list-item-content ${
-            chat.isPinned ? "pinned" : ""
-          }`;
+          content.className = `chat-list-item-content ${chat.isPinned ? "pinned" : ""}`;
 
           const avatar = chat.isGroup
             ? chat.settings.groupAvatar
@@ -21795,9 +22753,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                                   ? '<span style="color: green;">运行中</span>'
                                   : '<span style="color: red;">未运行</span>'
                               }<br>
-			                        - 当前角色状态: <strong>${
-                                chat.relationship.status
-                              }</strong><br>
+			                        - 当前角色状态: <strong>${chat.relationship.status}</strong><br>
 			                        - 需要冷静(小时): <strong>${cooldownHours}</strong><br>
 			                        - 冷静期是否结束: ${
                                 isCooldownOver
@@ -22178,9 +23134,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const item = document.createElement("div");
             item.className = "list-item";
             item.dataset.bookId = book.id;
-            item.innerHTML = `<div class="item-title">${
-              book.name
-            }</div><div class="item-content">${(
+            item.innerHTML = `<div class="item-title">${book.name}</div><div class="item-content">${(
               book.content || "暂无内容..."
             ).substring(0, 50)}</div>`;
             item.addEventListener("click", () => openWorldBookEditor(book.id));
@@ -22546,10 +23500,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             // 这里给它加个小图标，让它看起来更有“剧情感”
             bubble.innerHTML = `
 			                            <div style="font-weight:bold; color:#5f6368;">📝 旁白</div>
-			                            <div style="line-height: 1.5;">${msg.content.replace(
-                                    /\n/g,
-                                    "<br>",
-                                  )}</div>
+			                            <div style="line-height: 1.5;">${msg.content.replace(/\n/g, "<br>")}</div>
 			                        `;
 
             wrapper.appendChild(bubble);
@@ -22713,9 +23664,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             contentHtml = `
 			            <div class="link-share-card" data-timestamp="${msg.timestamp}">
 			                <div class="title">${msg.title || "无标题"}</div>
-			                <div class="description">${
-                        msg.description || "点击查看详情..."
-                      }</div>
+			                <div class="description">${msg.description || "点击查看详情..."}</div>
 			                <div class="footer">
 			                    <svg class="footer-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
 			                    <span>${msg.source_name || "链接分享"}</span>
@@ -22833,9 +23782,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const latest = payload.latestChapterIndex
               ? `第${payload.latestChapterIndex}章 ${payload.latestTitle || ""}`
               : "最新章节";
-            const meta = `${payload.pairing || ""} · ${payload.statusText || ""} · 共${
-              payload.chapterCount || "?"
-            }章`;
+            const meta = `${payload.pairing || ""} · ${payload.statusText || ""} · 共${payload.chapterCount || "?"}章`;
             contentHtml = `
         <div class="book-share-card" style="cursor: pointer;" data-post-id="${payload.latestPostId || ""}">
           <div class="book-spine"></div>
@@ -22932,18 +23879,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			                <!-- 2. 清晰列出有什么商品 -->
 			                <div class="gift-card-items">
 			                    <strong>商品列表:</strong><br>
-			                    ${payload.itemSummary.replace(
-                            /、/g,
-                            "<br>",
-                          )} <!-- 将顿号替换为换行，让列表更清晰 -->
+			                    ${payload.itemSummary.replace(/、/g, "<br>")} <!-- 将顿号替换为换行，让列表更清晰 -->
 			                </div>
 			                <!-- 3. 清晰标明总金额 -->
 			                <div class="gift-card-footer">
-			                    共 ${
-                            payload.itemCount
-                          } 件，合计: <span class="total-price">¥${payload.totalPrice.toFixed(
-                            2,
-                          )}</span>
+			                    共 ${payload.itemCount} 件，合计: <span class="total-price">¥${payload.totalPrice.toFixed(2)}</span>
 			                </div>
 			            </div>
 			        </div>
@@ -23032,14 +23972,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             // 4. 构建地点信息HTML
             const userLocationHtml = `<p class="${
               !msg.userLocation ? "hidden" : ""
-            }"><span class="name-tag">${myNickname}:</span> ${
-              msg.userLocation
-            }</p>`;
+            }"><span class="name-tag">${myNickname}:</span> ${msg.userLocation}</p>`;
             const aiLocationHtml = `<p class="${
               !msg.aiLocation ? "hidden" : ""
-            }"><span class="name-tag">${aiNickname}:</span> ${
-              msg.aiLocation
-            }</p>`;
+            }"><span class="name-tag">${aiNickname}:</span> ${msg.aiLocation}</p>`;
 
             // 5. 拼接最终的 contentHtml
             contentHtml = `
@@ -23077,10 +24013,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               1,
               Math.round((msg.content || "").length / 5),
             );
-            const durationFormatted = `0:${String(duration).padStart(
-              2,
-              "0",
-            )}''`;
+            const durationFormatted = `0:${String(duration).padStart(2, "0")}''`;
             const waveformHTML =
               "<div></div><div></div><div></div><div></div><div></div>";
 
@@ -23149,9 +24082,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             contentHtml = `
 			        <div class="transfer-card">
 			            <div class="transfer-title">${heartIcon} ${titleText}</div>
-			            <div class="transfer-amount">¥ ${Number(msg.amount).toFixed(
-                    2,
-                  )}</div>
+			            <div class="transfer-amount">¥ ${Number(msg.amount).toFixed(2)}</div>
 			            <div class.transfer-note">${noteText}</div>
 			        </div>
 			    `;
@@ -23195,13 +24126,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			                    <div class="request-title">${requestTitle}</div>
 			                    <div class="payment-box">
 			                        <div class="payment-label">需付款</div>
-			                        <div class="amount">¥${Number(msg.amount).toFixed(
-                                2,
-                              )}</div>
+			                        <div class="amount">¥${Number(msg.amount).toFixed(2)}</div>
 			                        <div class="countdown-label">剩余支付时间
-			                            <div class="countdown-timer" id="waimai-timer-${
-                                    msg.timestamp
-                                  }"></div>
+			                            <div class="countdown-timer" id="waimai-timer-${msg.timestamp}"></div>
 			                        </div>
 			                    </div>
 			                    <button class="waimai-details-btn">查看详情</button>
@@ -23236,9 +24163,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                     : "";
                   showCustomAlert(
                     "订单详情",
-                    `<b>商品：</b>${msg.productInfo}<br><b>金额：</b>¥${Number(
-                      msg.amount,
-                    ).toFixed(2)}${paidByText}`,
+                    `<b>商品：</b>${msg.productInfo}<br><b>金额：</b>¥${Number(msg.amount).toFixed(2)}${paidByText}`,
                   );
                 });
               }
@@ -23298,9 +24223,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			        <div class="red-packet-card ${cardClass}">
 			            <div class="rp-header">
 			                <img src="https://files.catbox.moe/lo9xhc.png" class="rp-icon">
-			                <span class="rp-greeting">${
-                        msg.greeting || "恭喜发财，大吉大利！"
-                      }</span>
+			                <span class="rp-greeting">${msg.greeting || "恭喜发财，大吉大利！"}</span>
 			            </div>
 			            <div class="rp-type">${typeText}</div>
 			            ${claimedInfoHtml}
@@ -23311,9 +24234,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const cardData = msg.content;
 
             contentHtml = `
-			        <div class="ls-diary-notification-card" onclick="openLoversSpaceFromCard('${
-                chat.id
-              }', 'ls-diary-view')">
+			        <div class="ls-diary-notification-card" onclick="openLoversSpaceFromCard('${chat.id}', 'ls-diary-view')">
 			            <div class="ls-diary-card-header">
 			                <span>${cardData.userEmoji || "💌"}</span>
 			                <span>一封来自心情日记的提醒</span>
@@ -23415,9 +24336,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               const isVotedByMe = myVote === optionText;
 
               optionsHtml += `
-			            <div class="poll-option-item ${
-                    isVotedByMe ? "voted" : ""
-                  }" data-option="${optionText}">
+			            <div class="poll-option-item ${isVotedByMe ? "voted" : ""}" data-option="${optionText}">
 			                <div class="poll-option-bar" style="width: ${percentage}%;"></div>
 			                <div class="poll-option-content">
 			                    <span class="poll-option-text">${optionText}</span>
@@ -23439,9 +24358,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             }
 
             contentHtml = `
-			        <div class="poll-card ${
-                msg.isClosed ? "closed" : ""
-              }" data-poll-timestamp="${msg.timestamp}">
+			        <div class="poll-card ${msg.isClosed ? "closed" : ""}" data-poll-timestamp="${msg.timestamp}">
 			            <div class="poll-question">${msg.question}</div>
 			            ${optionsHtml}
 			            ${footerHtml}
@@ -23452,9 +24369,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const reading = msg.payload;
             let cardsText = reading.cards
               .map((card) => {
-                return `[${card.position}] ${card.name} ${
-                  card.isReversed ? "(逆位)" : ""
-                }`;
+                return `[${card.position}] ${card.name} ${card.isReversed ? "(逆位)" : ""}`;
               })
               .join("\n");
 
@@ -23482,20 +24397,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           } else if (msg.type === "sticker" && msg.content) {
             bubble.classList.add("is-sticker");
             // 直接从消息对象中获取 url 和 meaning
-            contentHtml = `<img src="${msg.content}" alt="${
-              msg.meaning || "Sticker"
-            }" class="sticker-image">`;
+            contentHtml = `<img src="${msg.content}" alt="${msg.meaning || "Sticker"}" class="sticker-image">`;
           }
 
           // 旧的逻辑保持不变，作为兼容
           else if (
             typeof msg.content === "string" &&
-            STICKER_REGEX.test(msg.content)
+            STICKER_REGEX.test(msg.content.trim())
           ) {
             bubble.classList.add("is-sticker");
-            contentHtml = `<img src="${msg.content}" alt="${
-              msg.meaning || "Sticker"
-            }" class="sticker-image">`;
+            contentHtml = `<img src="${msg.content}" alt="${msg.meaning || "Sticker"}" class="sticker-image">`;
           } else if (
             Array.isArray(msg.content) &&
             msg.content[0]?.type === "image_url"
@@ -23677,9 +24588,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           } else if (msg.type === "voice_message") {
             contentText = `[语音]: ${msg.content}`;
           } else if (msg.type === "transfer") {
-            contentText = `[转账] 金额: ${msg.amount}, 备注: ${
-              msg.note || "无"
-            }`;
+            contentText = `[转账] 金额: ${msg.amount}, 备注: ${msg.note || "无"}`;
           } else {
             contentText = String(msg.content || "");
           }
@@ -23704,9 +24613,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           if (summaries.length > 0) {
             summaryContext = `
 			# 对话记忆总结 (这是你和用户的长期记忆，必须严格遵守)
-			${summaries
-        .map((summary, index) => `- 总结${index + 1}: ${summary.content}`)
-        .join("\n")}
+			${summaries.map((summary, index) => `- 总结${index + 1}: ${summary.content}`).join("\n")}
 			`;
           }
           // 将世界书读取提到这里，确保线下模式也能生效
@@ -23720,9 +24627,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 const book = state.worldBooks.find((b) => b.id === id);
                 // 这里使用了 stripHtmlAndCode 清理函数，确保纯文本
                 return book && book.content
-                  ? `\n\n## 世界书条目: ${book.name}\n${stripHtmlAndCode(
-                      book.content,
-                    )}`
+                  ? `\n\n## 世界书条目: ${book.name}\n${stripHtmlAndCode(book.content)}`
                   : "";
               })
               .filter(Boolean)
@@ -23831,9 +24736,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               let isGemini = proxyUrl === GEMINI_API_URL;
               let requestBody;
               let requestUrl = isGemini
-                ? `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(
-                    apiKey,
-                  )}`
+                ? `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(apiKey)}`
                 : `${proxyUrl}/v1/chat/completions`;
               let requestHeaders = isGemini
                 ? { "Content-Type": "application/json" }
@@ -24313,7 +25216,23 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             await db.chats.put(chat);
             return triggerAiResponse(); // 再次调用自己，让Char进行回应
           }
-          // --- 塔罗牌解读逻辑结束 ---
+
+          let lsPhotosContext = "";
+          if (
+            chat.loversSpaceData &&
+            chat.loversSpaceData.photos &&
+            chat.loversSpaceData.photos.length > 0
+          ) {
+            // 只取最近的 3 张照片给 AI 看
+            const recentPhotos = chat.loversSpaceData.photos.slice(-3);
+            lsPhotosContext = "\n\n# 情侣相册最近的照片 (你可以评论它们):\n";
+            recentPhotos.forEach((p) => {
+              const hasCommented =
+                p.comments && p.comments.some((c) => c.author === chat.name);
+              const status = hasCommented ? "[你已评论]" : "[你未评论]";
+              lsPhotosContext += `- (时间戳/ID: ${p.timestamp}) 描述: "${p.description}" ${status}\n`;
+            });
+          }
 
           let weiboContextForActiveChat = "";
           try {
@@ -24423,19 +25342,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 .slice(-10, -5) // 获取拉黑前的最后5条消息
                 .map((msg) => {
                   const sender = msg.role === "user" ? "用户" : chat.name;
-                  return `${sender}: ${String(msg.content).substring(
-                    0,
-                    50,
-                  )}...`;
+                  return `${sender}: ${String(msg.content).substring(0, 50)}...`;
                 })
                 .join("\n");
 
               // 2. 构建一个强制AI给出理由的Prompt
               const decisionPrompt = `
 			# 你的任务
-			你现在是角色“${
-        chat.name
-      }”。用户之前被你拉黑了，现在TA向你发送了好友申请，希望和好。
+			你现在是角色“${chat.name}”。用户之前被你拉黑了，现在TA向你发送了好友申请，希望和好。
 
 			# 供你决策的上下文信息:
 			- **你的角色设定**: ${chat.settings.aiPersona}
@@ -24536,10 +25450,64 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               // 决策流程结束，必须返回，不再执行后续的通用聊天逻辑
               return;
             }
-
-            const historySlice = chat.history
+            // 1. 获取最近的历史记录
+            let historySlice = chat.history
               .filter((msg) => !msg.isTemporary)
-              .slice(-chat.settings.maxMemory); // 1. 【修复】把这行加回来！
+              .slice(-chat.settings.maxMemory);
+
+            // ======================= [修复开始] =======================
+            // 防止情书死循环逻辑：
+            // 遍历历史记录，如果发现“催写情书”的指令，检查它后面是否已经跟了AI的情书回复。
+            // 如果已经回复过，就将该系统指令标记为“跳过”，不再发给AI。
+
+            // 用于存储需要过滤掉的消息的时间戳
+            const timestampsToSkip = new Set();
+
+            for (let i = 0; i < historySlice.length; i++) {
+              const msg = historySlice[i];
+
+              // 检查是否是那是条催写情书的系统消息
+              if (
+                msg.role === "system" &&
+                msg.content &&
+                msg.content.includes("ls_letter") &&
+                msg.content.includes("写一封回信")
+              ) {
+                // 找到了指令，现在往后找有没有AI的回复
+                let hasReplied = false;
+                for (let j = i + 1; j < historySlice.length; j++) {
+                  const nextMsg = historySlice[j];
+                  // 检查是否是AI发的，且内容包含 ls_letter 指令
+                  if (nextMsg.role === "assistant") {
+                    // 简单判断文本内容或JSON结构
+                    const contentStr =
+                      typeof nextMsg.content === "string"
+                        ? nextMsg.content
+                        : JSON.stringify(nextMsg.content);
+                    if (
+                      contentStr.includes('"type": "ls_letter"') ||
+                      contentStr.includes('"type":"ls_letter"')
+                    ) {
+                      hasReplied = true;
+                      break;
+                    }
+                  }
+                }
+
+                // 如果已经回复过了，就把这条系统指令加入跳过列表
+                if (hasReplied) {
+                  timestampsToSkip.add(msg.timestamp);
+                  console.log(
+                    "检测到已完成的情书指令，已从上下文中移除，防止重复触发。",
+                  );
+                }
+              }
+            }
+
+            // 过滤掉不再需要的指令
+            historySlice = historySlice.filter(
+              (msg) => !timestampsToSkip.has(msg.timestamp),
+            );
 
             // --- 红包状态实时播报模块 ---
             let redPacketContext = "";
@@ -24656,9 +25624,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   );
 
                   return worldBook && worldBook.content
-                    ? `\n\n## 世界书: ${worldBook.name}\n${stripHtmlAndCode(
-                        worldBook.content,
-                      )}`
+                    ? `\n\n## 世界书: ${worldBook.name}\n${stripHtmlAndCode(worldBook.content)}`
                     : "";
                 })
                 .filter(Boolean)
@@ -24708,19 +25674,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   );
                   lyricsContext += `- **当前歌词**: "${currentLine.text}"\n`;
                   if (upcomingLines.length > 0) {
-                    lyricsContext += `- **即将演唱**: ${upcomingLines
-                      .map((line) => `"${line.text}"`)
-                      .join(" / ")}\n`;
+                    lyricsContext += `- **即将演唱**: ${upcomingLines.map((line) => `"${line.text}"`).join(" / ")}\n`;
                   }
                 }
 
                 musicContext = `\n\n# 当前音乐情景
                     -   **当前状态**: 你正在和用户一起听歌。
-                    -   **正在播放**: ${
-                      currentTrack
-                        ? `《${currentTrack.name}》 - ${currentTrack.artist}`
-                        : "无"
-                    }
+                    -   **正在播放**: ${currentTrack ? `《${currentTrack.name}》 - ${currentTrack.artist}` : "无"}
                     -   **可用播放列表**: [${playlistInfo}]
                     -   **你的任务**: 你可以根据对话内容和氛围，使用 "change_music" 指令切换到播放列表中的任何一首歌，以增强互动体验。
                     ${lyricsContext}`;
@@ -24851,7 +25811,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			你的任务: 请你阅读并理解这个帖子。在接下来的回复中，你【必须】使用 'forum_comment' 指令对这个帖子发表你的看法或疑问。
 			`;
             }
-
+            const replyRange = chat.settings.replyCountRange || {
+              min: 2,
+              max: 5,
+            };
+            const replyCountInstruction = `每次回复的消息数量应控制在【${replyRange.min} 到 ${replyRange.max} 条】之间。`;
             if (chat.isGroup) {
               const countdownContext = await getCountdownContext(chatId); // <--- 把chatId传进去
               const streakContext = await getStreakContext(chat); // <-- 全新添加：获取火花状态
@@ -24883,7 +25847,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			# 角色
 			你是一个群聊AI，负责扮演【除了用户以外】的所有角色。
 			# 【对话节奏铁律 (至关重要！)】
-			你的回复【必须】模拟真人的打字和思考习惯。不要一次性发送一大段文字，你应该将你想说的话，拆分成【多条、简短的】消息气泡来发送，每条消息最好不要超过30个字。这会让对话看起来更自然、更真实。
+			你的回复【必须】模拟真人的打字和思考习惯。不要一次性发送一大段文字，你应该将你想说的话，拆分成${replyCountInstruction}条消息气泡来发送，每条消息最好不要超过30个字。这会让对话看起来更自然、更真实。
 			**角色回复顺序不固定，可以交叉回复，例如角色A、角色B、角色B、角色A、角色C这样的交叉顺序。不一定要一个人全部说完了才轮到下一个人。角色之间【必须】有互动对话。**
 			# 【【【身份铁律：这是最高指令，必须严格遵守】】】
 			1.  **核心任务**: 你的唯一任务是扮演且仅能扮演下方“群成员列表”中明确列出的角色。
@@ -24896,12 +25860,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			    -   缺少 "name" 字段的回复是无效的，会被系统拒绝。
 			5.  **角色扮演**: 严格遵守下方“群成员列表及人设”中的每一个角色的设定。
 			# 群成员列表及人设 (name字段是你要使用的【本名】)
-			${chat.members
-        .map(
-          (m) =>
-            `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`,
-        )
-        .join("\n")}
+			${chat.members.map((m) => `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`).join("\n")}
 			6.  **禁止出戏**: 绝不能透露你是AI、模型，或提及“扮演”、“生成”等词语。并且不能一直要求和用户见面，这是线上聊天，决不允许出现或者发展线下剧情！！
 			7.  **情景感知**: 注意当前时间是 ${currentTime}。
 			8.  **红包互动**:
@@ -25048,9 +26007,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                       msg.timestamp
                     }) [系统提示：用户 (${myNickname}) 发起了一个投票。问题：“${
                       msg.question
-                    }”, 选项：“${msg.options.join(
-                      '", "',
-                    )}”。你可以使用 'vote' 指令参与投票。]`;
+                    }”, 选项：“${msg.options.join('", "')}”。你可以使用 'vote' 指令参与投票。]`;
                     // 3. 返回一个被AI识别为用户发出的、但内容是指令的消息
                     return { role: "user", content: pollInfoText };
                   }
@@ -25304,7 +26261,6 @@ ${libraryList}
                 console.error("加载饿了么菜单失败:", error);
                 elemeContext += "【注意：饿了么菜单加载失败。】";
               }
-
               systemPrompt = `### **【第一部分：角色核心设定】**
 
 			你现在将扮演一个名为“**${chat.name}**”的角色。
@@ -25322,9 +26278,7 @@ ${libraryList}
 			- **微博身份**:
 			    - **职业**: ${chat.settings.weiboProfession || "无"}
 			    - **特殊指令**: ${chat.settings.weiboInstruction || "无特殊指令"}
-			- 你的钱包余额: ${
-        chat.characterPhoneData?.bank?.balance?.toFixed(2) || "0.00"
-      } 金币
+			- 你的钱包余额: ${chat.characterPhoneData?.bank?.balance?.toFixed(2) || "0.00"} 金币
 			**3. 你的头像库:**
 			你可以根据对话内容或心情，从下方选择更换头像。
 			- **可用头像列表**:
@@ -25346,7 +26300,8 @@ ${libraryList}
 
 			**2. "chatResponse" 键:**
 			- **类型**: JSON数组 []。
-			- **内容**: 包含一条或多条你希望发送给用户的消息对象。这允许你模拟真人的聊天习惯，一次性发送多条短消息。
+			- **内容**: 你的回复【必须】模拟真人的打字和思考习惯。不要一次性发送一大段文字，你应该将你想说的话，拆分成【多条、简短的】消息气泡来发送。
+**${replyCountInstruction}** 
 			- **格式**: 消息对象的具体格式见下方的【第五部分：可使用的操作指令】。
 
             **3. "innerVoice" 键:**
@@ -25553,6 +26508,7 @@ ${libraryList}
 			- **发说说**: \`{"type": "ls_moment", "content": "我想对你说的话..."}\`
 			- **评论说说**: \`{"type": "ls_comment", "momentIndex": 0, "commentText": "你的评论..."}\` (momentIndex: 0代表最新一条)
 			- **发照片**: \`{"type": "ls_photo", "description": "对照片的文字描述..."}\`
+      - **评论照片**: \`{"type": "ls_photo_comment", "photoTimestamp": (照片的时间戳), "commentText": "你的评论..."}\`
 			- **提问**: \`{"type": "ls_ask_question", "questionText": "你想问的问题..."}\`
 			- **回答**: \`{"type": "ls_answer_question", "questionId": "q_123456789", "answerText": "你的回答..."}\`
 			- **写情书/回信**: \`{"type": "ls_letter", "content": "情书的正文内容..."}\` (收到情书后必须用此指令回信)
@@ -25562,7 +26518,7 @@ ${libraryList}
 			-   **分享游戏**:\`{"type": "ls_share", "shareType": "game", "title": "游戏名", "summary": "游戏简介...", "thoughts": "在这里写下你分享这款游戏的感想/感谢..."}\`
 			-   **写日记**: \`{"type": "ls_diary_entry", "emoji": "emoji表情", "diary": "今天发生了什么..."}\`
 			### **【第六部分：当前上下文信息】**
-
+ ${lsPhotosContext}
 			- **对话者(用户)角色设定**:
 			${chat.settings.myPersona}
 
@@ -25703,10 +26659,7 @@ ${libraryList}
                   .slice(-10)
                   .map((msg) => {
                     const sender = msg.role === "user" ? "用户" : chat.name;
-                    return `${sender}: ${String(msg.content).substring(
-                      0,
-                      50,
-                    )}...`;
+                    return `${sender}: ${String(msg.content).substring(0, 50)}...`;
                   })
                   .join("\n");
 
@@ -25852,9 +26805,7 @@ ${libraryList}
 
                 // 在每一条动态前面，都加上了由 formatPostTimestamp() 函数生成的时间差提示
                 const timeAgo = formatPostTimestamp(post.timestamp); // 例如："3天前" 或 "刚刚"
-                postsContext += `- (ID: ${
-                  post.id
-                }) [${timeAgo}] 作者: ${authorName}, 内容: "${(
+                postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(
                   post.publicText ||
                   post.content ||
                   "图片动态"
@@ -25997,9 +26948,7 @@ ${libraryList}
                 // 尝试解析错误信息体为JSON
                 const errorData = await response.json();
                 // 安全地获取错误信息，如果结构不符合预期，就将整个错误对象转为字符串
-                errorMsg += ` - ${
-                  errorData?.error?.message || JSON.stringify(errorData)
-                }`;
+                errorMsg += ` - ${errorData?.error?.message || JSON.stringify(errorData)}`;
               } catch (jsonError) {
                 // 如果连JSON都不是，就直接读取文本
                 errorMsg += ` - ${await response.text()}`;
@@ -26013,9 +26962,7 @@ ${libraryList}
                 // 尝试解析错误信息体为JSON
                 const errorData = await response.json();
                 // 安全地获取错误信息，如果结构不符合预期，就将整个错误对象转为字符串
-                errorMsg += ` - ${
-                  errorData?.error?.message || JSON.stringify(errorData)
-                }`;
+                errorMsg += ` - ${errorData?.error?.message || JSON.stringify(errorData)}`;
               } catch (jsonError) {
                 // 如果连JSON都不是，就直接读取文本
                 errorMsg += ` - ${await response.text()}`;
@@ -27174,9 +28121,7 @@ ${libraryList}
                     }
 
                     // 创建对用户可见的系统日志
-                    const visibleLog = `[系统：“${chat.name}”对宠物“${
-                      pet.name
-                    }”说：“${charMessageContent}”，它回应：“${
+                    const visibleLog = `[系统：“${chat.name}”对宠物“${pet.name}”说：“${charMessageContent}”，它回应：“${
                       petResponseToChar || "(没有回应)"
                     }”。]`;
                     const visibleMessage = {
@@ -27323,9 +28268,7 @@ ${libraryList}
                       itemCount: 1,
                     },
                     // 这是给AI自己看的、用于形成记忆的文本内容
-                    content: `我给你买了礼物“${productToBuy.name}”。${
-                      msgData.greeting || ""
-                    }`,
+                    content: `我给你买了礼物“${productToBuy.name}”。${msgData.greeting || ""}`,
                   };
 
                   // 4d. 模拟一个10秒后的“已发货”物流更新
@@ -27441,6 +28384,63 @@ ${libraryList}
                     );
                   }
                   continue; // 继续处理AI可能返回的其他指令
+                }
+                case "ls_photo_comment": {
+                  const { photoTimestamp, commentText } = msgData;
+                  console.log("🔍 [调试] 收到AI评论照片指令:", msgData);
+
+                  if (chat.loversSpaceData && chat.loversSpaceData.photos) {
+                    // 1. 查找照片 (使用 == 而不是 === 以兼容字符串/数字格式的时间戳)
+                    const targetPhoto = chat.loversSpaceData.photos.find(
+                      (p) => p.timestamp == photoTimestamp,
+                    );
+
+                    if (targetPhoto) {
+                      // 2. 确保评论数组存在
+                      if (!targetPhoto.comments) targetPhoto.comments = [];
+
+                      // 3. 添加评论对象
+                      targetPhoto.comments.push({
+                        author: chat.name, // 使用当前角色名
+                        text: commentText,
+                        timestamp: Date.now(),
+                      });
+
+                      console.log(`✅ [成功] AI评论已写入内存: ${commentText}`);
+
+                      // 4. 【重要】保存到数据库 (这是关键，否则刷新就没了)
+                      await db.chats.put(chat);
+
+                      // 5. 【UI刷新】检查当前是否正好打开了这张照片的详情页
+                      const detailModal = document.getElementById(
+                        "ls-photo-detail-modal",
+                      );
+
+                      // 检查弹窗是否可见
+                      if (
+                        detailModal &&
+                        detailModal.classList.contains("visible")
+                      ) {
+                        // 获取当前弹窗正在查看的照片时间戳
+                        const currentViewingTimestamp =
+                          detailModal.dataset.currentTimestamp;
+
+                        // 如果正在看的就是这张照片，立即重绘评论列表
+                        if (currentViewingTimestamp == photoTimestamp) {
+                          console.log(
+                            "🔄 [UI刷新] 当前正查看该照片，立即刷新评论区",
+                          );
+                          renderLSPhotoComments(targetPhoto);
+                        }
+                      }
+                    } else {
+                      console.warn(
+                        "❌ [失败] 未找到对应时间戳的照片:",
+                        photoTimestamp,
+                      );
+                    }
+                  }
+                  continue; // 这是一个后台操作，跳过生成普通聊天气泡
                 }
 
                 case "ls_letter": {
@@ -27596,22 +28596,62 @@ ${libraryList}
                       ? msgData.prompt.slice(0, 9)
                       : [msgData.prompt];
 
-                    // 生成多个图片URL（添加nologo参数去除水印）
-                    newPost.imageUrls = prompts.map((prompt) => {
-                      const encodedPrompt = encodeURIComponent(prompt);
-                      return `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&width=1024&height=1024`;
-                    });
+                    const pollApiKey = state.apiConfig.pollinationsApiKey;
+                    const generatedImageUrls = [];
+
+                    // 使用 Promise.all 并行处理请求，提高速度
+                    await Promise.all(
+                      prompts.map(async (prompt) => {
+                        const encodedPrompt = encodeURIComponent(prompt);
+                        const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&width=1024&height=1024`;
+
+                        try {
+                          if (pollApiKey) {
+                            // 如果有 Key，使用 fetch 获取并转为 Base64
+                            const res = await fetch(url, {
+                              headers: {
+                                Authorization: `Bearer ${pollApiKey}`,
+                              },
+                            });
+                            if (res.ok) {
+                              const blob = await res.blob();
+                              const base64 = await new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.readAsDataURL(blob);
+                              });
+                              generatedImageUrls.push(base64);
+                            } else {
+                              console.warn(
+                                `Pollinations fetch failed: ${res.status}, falling back to URL`,
+                              );
+                              generatedImageUrls.push(url);
+                            }
+                          } else {
+                            // 没有 Key，直接使用 URL
+                            generatedImageUrls.push(url);
+                          }
+                        } catch (e) {
+                          console.error(
+                            "Pollinations image generation error:",
+                            e,
+                          );
+                          generatedImageUrls.push(url); // 出错时回退到 URL 尝试
+                        }
+                      }),
+                    );
+
+                    newPost.imageUrls = generatedImageUrls;
 
                     // 保持向后兼容，单张图片时也设置 imageUrl
-                    if (prompts.length === 1) {
-                      newPost.imageUrl = newPost.imageUrls[0];
+                    if (generatedImageUrls.length === 1) {
+                      newPost.imageUrl = generatedImageUrls[0];
                     }
 
                     newPost.prompt = msgData.prompt;
-                    newPost.imageCount = prompts.length;
+                    newPost.imageCount = generatedImageUrls.length;
                     console.log(
-                      `动态RealImag图片生成: ${prompts.length}张`,
-                      newPost.imageUrls,
+                      `动态RealImag图片生成完成: ${generatedImageUrls.length}张`,
                     );
                   }
 
@@ -27644,11 +28684,7 @@ ${libraryList}
                         const finalNegativePrompt = naiPrompts.negative;
 
                         console.log(
-                          `📝 使用${
-                            naiPrompts.source === "character"
-                              ? "角色专属"
-                              : "系统"
-                          }提示词配置`,
+                          `📝 使用${naiPrompts.source === "character" ? "角色专属" : "系统"}提示词配置`,
                         );
                         console.log("最终正面提示词:", finalPositivePrompt);
                         console.log("最终负面提示词:", finalNegativePrompt);
@@ -28075,9 +29111,7 @@ ${libraryList}
                     const finalNegativePrompt = naiPrompts.negative;
 
                     console.log(
-                      `📝 使用${
-                        naiPrompts.source === "character" ? "角色专属" : "系统"
-                      }提示词配置`,
+                      `📝 使用${naiPrompts.source === "character" ? "角色专属" : "系统"}提示词配置`,
                     );
                     console.log("最终正面提示词:", finalPositivePrompt);
                     console.log("最终负面提示词:", finalNegativePrompt);
@@ -28480,9 +29514,7 @@ ${libraryList}
                   const suffix = msgData.suffix
                     ? ` ${msgData.suffix.trim()}`
                     : "";
-                  const patText = `${
-                    msgData.name || chat.name
-                  } 拍了拍我${suffix}`;
+                  const patText = `${msgData.name || chat.name} 拍了拍我${suffix}`;
                   const patMessage = {
                     role: "system",
                     type: "pat_message",
@@ -28660,14 +29692,10 @@ ${libraryList}
                       : "我";
                     pollInfoText = `[系统提示：用户 (${myNickname}) 发起了一个投票。问题：“${
                       msg.question
-                    }”, 选项：“${msg.options.join(
-                      '", "',
-                    )}”。你可以使用 'vote' 指令参与投票。]`;
+                    }”, 选项：“${msg.options.join('", "')}”。你可以使用 'vote' 指令参与投票。]`;
                   } else {
                     // 如果是AI发的
-                    pollInfoText = `[系统提示：${
-                      msg.senderName
-                    } 发起了一个投票。问题：“${
+                    pollInfoText = `[系统提示：${msg.senderName} 发起了一个投票。问题：“${
                       msg.question
                     }”, 选项：“${msg.options.join('", "')}”。]`;
                   }
@@ -28743,9 +29771,7 @@ ${libraryList}
                   };
 
                   // 同步到角色钱包（支出）
-                  const rpDescription = `发出红包 - ${
-                    msgData.greeting || "恭喜发财"
-                  }`;
+                  const rpDescription = `发出红包 - ${msgData.greeting || "恭喜发财"}`;
                   await updateCharacterBankBalance(
                     chatId,
                     -msgData.amount,
@@ -29397,9 +30423,7 @@ ${libraryList}
                   };
 
                   // 【全新】同步到角色钱包（支出）
-                  const transferDescription = `转账给 ${
-                    msgData.receiver || "我"
-                  }`;
+                  const transferDescription = `转账给 ${msgData.receiver || "我"}`;
                   await updateCharacterBankBalance(
                     chatId,
                     -msgData.amount,
@@ -29455,11 +30479,27 @@ ${libraryList}
                   const finalNotifText = chat.isGroup
                     ? `${aiMessage.senderName}: ${notificationText}`
                     : notificationText;
+                  // 确定具体的头像URL
+                  let senderAvatarForNotify = null;
+
+                  if (chat.isGroup) {
+                    // 如果是群聊，尝试根据消息发送者名字找到对应的成员头像
+                    const member = chat.members.find(
+                      (m) => m.originalName === aiMessage.senderName,
+                    );
+                    if (member) {
+                      senderAvatarForNotify = member.avatar;
+                    }
+                  } else {
+                    // 如果是单聊，直接用AI头像
+                    senderAvatarForNotify = chat.settings.aiAvatar;
+                  }
 
                   showNotification(
                     chatId,
-                    finalNotifText.substring(0, 60) + // 稍微加长了预览文字
+                    finalNotifText.substring(0, 60) +
                       (finalNotifText.length > 60 ? "..." : ""),
+                    senderAvatarForNotify, // <--- 传入这个新参数
                   );
                 }
 
@@ -30564,9 +31604,7 @@ ${libraryList}
             const albumItem = document.createElement("div");
             albumItem.className = "album-item";
             albumItem.innerHTML = `
-			                    <div class="album-cover" style="background-image: url(${
-                            album.coverUrl
-                          });"></div>
+			                    <div class="album-cover" style="background-image: url(${album.coverUrl});"></div>
 			                    <div class="album-info">
 			                        <p class="album-name">${album.name}</p>
 			                        <p class="album-count">${album.photoCount || 0} 张</p>
@@ -31316,9 +32354,7 @@ ${libraryList}
               )
                 interactionStatus += " [你已评论]";
               const timeAgo = formatPostTimestamp(post.timestamp);
-              postsContext += `- (ID: ${
-                post.id
-              }) [${timeAgo}] 作者: ${authorName}, 内容: "${(
+              postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(
                 post.publicText ||
                 post.content ||
                 "图片动态"
@@ -31330,9 +32366,7 @@ ${libraryList}
                 state.chats,
                 userNickname,
               );
-              postsContext += ` ${visibilityFlag} [当前观众: ${audience.join(
-                ", ",
-              )}]\n`;
+              postsContext += ` ${visibilityFlag} [当前观众: ${audience.join(", ")}]\n`;
               postsContext += commentsContext;
             }
           }
@@ -31401,18 +32435,21 @@ ${libraryList}
           const timeSinceLastMessage = lastMessage
             ? Math.floor((Date.now() - lastMessage.timestamp) / 60000)
             : infinity;
+          const replyRange = chat.settings.replyCountRange || {
+            min: 2,
+            max: 5,
+          };
+          const replyCountInstruction = `本次行动你必须连续发送【${replyRange.min} 到 ${replyRange.max} 条】消息。`;
           const systemPrompt = `
 			# 任务
-			你现在【就是】角色 "${
-        chat.name
-      }"。这是一个秘密的、后台的独立行动。你的所有思考和决策都必须以 "${
+			你现在【就是】角色 "${chat.name}"。这是一个秘密的、后台的独立行动。你的所有思考和决策都必须以 "${
         chat.name
       }" 的第一人称视角进行。
 			当前时间是（${currentTime}），你和用户（${userNickname}）已经有${Math.round(
         timeSinceLastMessage,
       )}分钟没有互动了。你的任务是回顾你们最近的对话，并根据你的人设，【自然地延续对话】或【开启一个新的、相关的话题】来主动联系用户。
 			# 【对话节奏铁律 (至关重要！)】
-			你的回复【必须】模拟真人的打字和思考习惯。你应该将你想说的话，拆分成【多条、简短的】消息气泡来发送，绝对不要一次性发送一大段文字。每条消息最好不要超过30个字，这会让对话看起来更自然、更真实。
+			你的回复【必须】模拟真人的打字和思考习惯。你应该将你想说的话，拆分成${replyCountInstruction}条，绝对不要一次性发送一大段文字！** 每条消息最好不要超过30个字，这会让对话看起来更自然、更真实。
 			# 【【【输出铁律：这是最高指令】】】
 			你的回复【必须且只能】是一个严格的JSON数组格式的字符串，必须多发几条，禁止全部杂糅在一条，是在线上，例如 \`[{"type": "text", "content": "你好呀"}]\`。
 			【绝对禁止】返回任何JSON以外的文本、解释、分析或你自己的思考过程。你不是分析师，你就是角色本人。
@@ -32220,18 +33257,10 @@ ${libraryList}
 
           const helpersHtml = `
 			        <div class="format-helpers">
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.voice,
-                  )}'>语音</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.image,
-                  )}'>图片</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.transfer,
-                  )}'>转账</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.link,
-                  )}'>链接</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.voice)}'>语音</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.image)}'>图片</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.transfer)}'>转账</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.link)}'>链接</button>
 			        </div>
 			    `;
 
@@ -32303,19 +33332,11 @@ ${libraryList}
 			        <button class="delete-block-btn" title="删除此条">×</button>
 			        <textarea>${initialContent}</textarea>
 			        <div class="format-helpers">
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.voice,
-                  )}'>语音</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.image,
-                  )}'>图片</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.transfer,
-                  )}'>转账</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.voice)}'>语音</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.image)}'>图片</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.transfer)}'>转账</button>
 			            
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.link,
-                  )}'>链接</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.link)}'>链接</button>
 			        </div>
 			    `;
 
@@ -32929,9 +33950,7 @@ ${libraryList}
           // 创建群聊后，发送一条系统通知
           await logSystemMessage(
             newChatId,
-            `你创建了群聊，并邀请了 ${members
-              .map((m) => `“${m.groupNickname}”`)
-              .join("、")} 加入群聊。`,
+            `你创建了群聊，并邀请了 ${members.map((m) => `“${m.groupNickname}”`).join("、")} 加入群聊。`,
           );
 
           // 后续逻辑不变
@@ -33668,9 +34687,7 @@ ${libraryList}
             } else {
               systemPromptForCall = `
 			# 你的任务
-			你正在扮演角色 "${chat.name}"。用户 (${
-        chat.settings.myNickname || "我"
-      }) 刚刚向你发起了视频通话请求。
+			你正在扮演角色 "${chat.name}"。用户 (${chat.settings.myNickname || "我"}) 刚刚向你发起了视频通话请求。
 			你的任务是根据你的人设和我们最近的聊天内容，决定是否接受。
 
 			# 核心规则
@@ -33951,9 +34968,7 @@ ${libraryList}
           const duration = Math.floor(
             (Date.now() - videoCallState.startTime) / 1000,
           );
-          const durationText = `${Math.floor(duration / 60)}分${
-            duration % 60
-          }秒`;
+          const durationText = `${Math.floor(duration / 60)}分${duration % 60}秒`;
           const endCallText = `通话结束，时长 ${durationText}`;
 
           const chat = state.chats[videoCallState.activeChatId];
@@ -34013,11 +35028,7 @@ ${libraryList}
             const callTranscriptForAI = videoCallState.callHistory
               .map(
                 (h) =>
-                  `${
-                    h.role === "user"
-                      ? chat.settings.myNickname || "我"
-                      : h.role
-                  }: ${h.content}`,
+                  `${h.role === "user" ? chat.settings.myNickname || "我" : h.role}: ${h.content}`,
               )
               .join("\n");
 
@@ -34265,9 +35276,7 @@ ${libraryList}
           );
           const minutes = Math.floor(elapsed / 60);
           const seconds = elapsed % 60;
-          const timeString = `${String(minutes).padStart(2, "0")}:${String(
-            seconds,
-          ).padStart(2, "0")}`;
+          const timeString = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
           // 同时更新两个界面的计时器
           document.getElementById("call-timer").textContent = timeString;
@@ -34427,6 +35436,21 @@ ${libraryList}
 			`;
           }
 
+          // ================= [修改开始] =================
+          // 1. 尝试获取摄像头画面
+          let cameraFrame = null;
+          if (isVisualMode && chat.settings.useRealCamera) {
+            const userVideoSelector = videoCallState.isUserMain
+              ? "#video-main-view video"
+              : "#video-pip-view video";
+            const userVideoEl = document.querySelector(userVideoSelector);
+
+            if (userVideoEl) {
+              cameraFrame = captureVideoFrame(userVideoEl);
+            }
+          }
+
+          // 2. 构建发送给 API 的消息列表
           const messagesForApi = [
             ...videoCallState.callHistory.map((h) => ({
               role: h.role,
@@ -34434,12 +35458,39 @@ ${libraryList}
             })),
           ];
 
-          if (videoCallState.callHistory.length === 0) {
-            const firstLineTrigger =
-              videoCallState.initiator === "user"
-                ? `*你按下了接听键...*`
-                : `*对方按下了接听键...*`;
-            messagesForApi.push({ role: "user", content: firstLineTrigger });
+          // 3. 如果成功截取到了画面，将其作为最新的一条 User 消息（或附加到最新消息）发送给 AI
+          if (cameraFrame) {
+            console.log("已截取摄像头画面，正在发送给AI...");
+
+            // 构造带图片的消息内容
+            const imageMessageContent = [
+              {
+                type: "text",
+                text: userInput
+                  ? userInput
+                  : "（用户正在看着你，这是他当前的摄像头画面）",
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: cameraFrame,
+                },
+              },
+            ];
+
+            messagesForApi.push({
+              role: "user",
+              content: imageMessageContent,
+            });
+          } else {
+            // 如果没截图（比如没开摄像头），如果历史记录为空，需要发一个触发词
+            if (videoCallState.callHistory.length === 0 && !userInput) {
+              const firstLineTrigger =
+                videoCallState.initiator === "user"
+                  ? `*你按下了接听键...*`
+                  : `*对方按下了接听键...*`;
+              messagesForApi.push({ role: "user", content: firstLineTrigger });
+            }
           }
 
           try {
@@ -34730,9 +35781,7 @@ ${libraryList}
           ).padStart(2, "0")}-${String(memoryDate.getDate()).padStart(
             2,
             "0",
-          )} ${String(memoryDate.getHours()).padStart(2, "0")}:${String(
-            memoryDate.getMinutes(),
-          ).padStart(2, "0")}`;
+          )} ${String(memoryDate.getHours()).padStart(2, "0")}:${String(memoryDate.getMinutes()).padStart(2, "0")}`;
 
           let titleHtml, contentHtml;
 
@@ -34740,9 +35789,7 @@ ${libraryList}
           if (memory.type === "countdown" && memory.targetDate) {
             // 如果是已到期的约定
             titleHtml = `[约定达成] ${memory.description}`;
-            contentHtml = `在 ${new Date(
-              memory.targetDate,
-            ).toLocaleString()}，我们一起见证了这个约定。`;
+            contentHtml = `在 ${new Date(memory.targetDate).toLocaleString()}，我们一起见证了这个约定。`;
           } else {
             // 如果是普通的日记式回忆
             titleHtml = memory.authorName
@@ -35187,9 +36234,7 @@ ${libraryList}
               // 显示成功提示
               await showCustomAlert(
                 "恭喜！",
-                `你领取了 ${
-                  packet.senderName
-                } 的红包，金额为 ${claimedAmount.toFixed(2)} 元。`,
+                `你领取了 ${packet.senderName} 的红包，金额为 ${claimedAmount.toFixed(2)} 元。`,
               );
             }
 
@@ -35335,9 +36380,7 @@ ${libraryList}
             (sum, val) => sum + val,
             0,
           );
-          let summaryText = `${claimedCount}/${
-            packet.count
-          }个红包，共${claimedAmountSum.toFixed(
+          let summaryText = `${claimedCount}/${packet.count}个红包，共${claimedAmountSum.toFixed(
             2,
           )}/${packet.totalAmount.toFixed(2)}元。`;
           if (!packet.isFullyClaimed && claimedCount < packet.count) {
@@ -35615,9 +36658,7 @@ ${libraryList}
               const voters = poll.votes[option] || [];
               resultsHtml += `
 			                <div style="margin-bottom: 15px;">
-			                    <p style="font-weight: 500; margin: 0 0 5px 0;">${option} (${
-                            voters.length
-                          }票)</p>
+			                    <p style="font-weight: 500; margin: 0 0 5px 0;">${option} (${voters.length}票)</p>
 			                    <p style="font-size: 13px; color: #555; margin: 0; line-height: 1.5;">
 			                        ${voters.length > 0 ? voters.join("、 ") : "无人投票"}
 			                    </p>
@@ -35985,28 +37026,25 @@ ${libraryList}
               .filter((msg) => msg.type === "summary")
               .map((s) => s.content)
               .join("\n");
-
+            const replyRange = chat.settings.replyCountRange || {
+              min: 3,
+              max: 8,
+            }; // 群聊默认多一点
+            const replyCountInstruction = `本次后台互动，生成的总消息条数应控制在【${replyRange.min} 到 ${replyRange.max} 条】之间。`;
             // updated by lrq 251027
             const systemPrompt = `
 			# 任务
-			你是一个群聊后台模拟器。当前时间是${currentTime}，群聊 "${
-        chat.name
-      }" 已经沉寂了 ${Math.round(
+			你是一个群聊后台模拟器。当前时间是${currentTime}，群聊 "${chat.name}" 已经沉寂了 ${Math.round(
         timeSinceLastMessage,
       )} 分钟，用户(昵称: "${chat.settings.myNickname || "我"}")不在线。
 			你的任务是根据下方每个角色的人设，在他们之间【自发地】生成一段自然的对话。
 			# 【对话节奏铁律 (至关重要！)】
-			你的回复【必须】模拟真人的打字和思考习惯。你应该将你想说的话，拆分成【多条、简短的】消息气泡来发送，**绝对不要一次性发送一大段文字！** 每条消息最好不要超过30个字，这会让对话看起来更自然、更真实。
+			你的回复【必须】模拟真人的打字和思考习惯。你应该将你想说的话，拆分成${replyCountInstruction}条消息气泡来发送，**绝对不要一次性发送一大段文字！** 每条消息最好不要超过30个字，这会让对话看起来更自然、更真实。
 			**角色回复顺序不固定，可以交叉回复，例如角色A、角色B、角色B、角色A、角色C这样的交叉顺序。不一定要一个人全部说完了才轮到下一个人。角色之间【必须】有互动对话。**
 			# 核心规则
 			1.  **【【【身份铁律】】】**: 用户【绝对不在场】。你【绝对不能】生成与用户对话的内容。整段对话必须是AI角色之间的互动。你的唯一任务是扮演【且仅能扮演】下方“群成员列表”中明确列出的角色。【绝对禁止】扮演任何未在“群成员列表”中出现的角色。
 			    # 群成员列表及人设 (name字段是你要使用的【本名】)
-			    ${chat.members
-            .map(
-              (m) =>
-                `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`,
-            )
-            .join("\n")}
+			    ${chat.members.map((m) => `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`).join("\n")}
 			2.  **【【【输出格式】】】**: 你的回复【必须】是一个JSON数组格式的字符串。数组中的【每一个元素都必须是一个带有 "type" 和 "name" 字段的JSON对象】。
 			3.  **角色扮演**: 严格遵守下方“群成员列表及人设”中的每一个角色的设定。
 			4.  **禁止出戏**: 绝不能透露你是AI、模型，或提及“扮演”、“生成”等词语。
@@ -36106,7 +37144,21 @@ ${libraryList}
 
               // 给用户发通知
               chat.unreadCount = (chat.unreadCount || 0) + messagesArray.length;
-              showNotification(chatId, firstMessageContent);
+              // 获取该条消息发送者的头像
+              let bgSenderAvatar = null;
+              if (chat.isGroup) {
+                // 假设第一条消息包含了 senderName (在 messagesArray[0] 里可能是 name 字段)
+                // 注意：triggerInactiveAiAction 里的逻辑比较复杂，这里 messagesArray 的元素是 {name:..., message:...}
+                const senderName = messagesArray[0].name;
+                const member = chat.members.find(
+                  (m) => m.originalName === senderName,
+                );
+                if (member) bgSenderAvatar = member.avatar;
+              } else {
+                bgSenderAvatar = chat.settings.aiAvatar;
+              }
+
+              showNotification(chatId, firstMessageContent, bgSenderAvatar);
 
               // 保存并刷新UI
               await db.chats.put(chat);
@@ -36303,10 +37355,7 @@ ${libraryList}
 			            <span>来源: ${message.source_name || "未知"}</span>
 			        </div>
 			        <div class="article-body">
-			            <p>${(message.content || "内容为空。").replace(
-                    /\n/g,
-                    "</p><p>",
-                  )}</p>
+			            <p>${(message.content || "内容为空。").replace(/\n/g, "</p><p>")}</p>
 			        </div>
 			    `;
 
@@ -36751,17 +37800,15 @@ ${libraryList}
           const chatName = chatInfo ? chatInfo.name : "未知会话";
 
           const callDate = new Date(record.timestamp);
-          const dateString = `${callDate.getFullYear()}-${String(
-            callDate.getMonth() + 1,
-          ).padStart(2, "0")}-${String(callDate.getDate()).padStart(
+          const dateString = `${callDate.getFullYear()}-${String(callDate.getMonth() + 1).padStart(2, "0")}-${String(
+            callDate.getDate(),
+          ).padStart(
             2,
             "0",
           )} ${String(callDate.getHours()).padStart(2, "0")}:${String(
             callDate.getMinutes(),
           ).padStart(2, "0")}`;
-          const durationText = `${Math.floor(record.duration / 60)}分${
-            record.duration % 60
-          }秒`;
+          const durationText = `${Math.floor(record.duration / 60)}分${record.duration % 60}秒`;
 
           const avatarsHtml = record.participants
             .map(
@@ -36777,11 +37824,7 @@ ${libraryList}
 			        </div>
 			        <div class="card-body">
 			            
-			            ${
-                    record.customName
-                      ? `<div class="custom-title">${record.customName}</div>`
-                      : ""
-                  }
+			            ${record.customName ? `<div class="custom-title">${record.customName}</div>` : ""}
 
 			            <div class="participants-info"> <!-- 新增一个容器方便布局 -->
 			                <div class="participants-avatars">${avatarsHtml}</div>
@@ -36806,9 +37849,7 @@ ${libraryList}
 
           titleEl.textContent = `通话于 ${new Date(
             record.timestamp,
-          ).toLocaleString()} (时长: ${Math.floor(record.duration / 60)}分${
-            record.duration % 60
-          }秒)`;
+          ).toLocaleString()} (时长: ${Math.floor(record.duration / 60)}分${record.duration % 60}秒)`;
           bodyEl.innerHTML = "";
 
           if (!record.transcript || record.transcript.length === 0) {
@@ -36908,9 +37949,7 @@ ${libraryList}
             const item = document.createElement("div");
             item.className = "contact-picker-item";
             item.innerHTML = `
-			            <input type="checkbox" class="share-target-checkbox" data-chat-id="${
-                    chat.id
-                  }" style="margin-right: 15px;">
+			            <input type="checkbox" class="share-target-checkbox" data-chat-id="${chat.id}" style="margin-right: 15px;">
 			            <img src="${
                     chat.isGroup
                       ? chat.settings.groupAvatar
@@ -37359,9 +38398,7 @@ ${libraryList}
         async function deleteNpc(npcId, npcName) {
           const confirmed = await showCustomConfirm(
             "删除NPC",
-            `确定要从“${
-              state.chats[state.activeChatId].name
-            }”的NPC库中删除 “${npcName}” 吗？`,
+            `确定要从“${state.chats[state.activeChatId].name}”的NPC库中删除 “${npcName}” 吗？`,
             { confirmButtonClass: "btn-danger" },
           );
 
@@ -37545,11 +38582,7 @@ ${libraryList}
           item.title = frame.name;
           item.innerHTML = `
 			        <img src="${previewAvatarSrc}" class="preview-avatar">
-			        ${
-                frame.url
-                  ? `<img src="${frame.url}" class="preview-frame" style="pointer-events: none;">`
-                  : ""
-              }
+			        ${frame.url ? `<img src="${frame.url}" class="preview-frame" style="pointer-events: none;">` : ""}
 			    `;
           item.addEventListener("click", () => {
             document
@@ -37816,6 +38849,166 @@ ${libraryList}
 
           alert(`方案 "${themeName}" 已成功保存！`);
         }
+        /**
+         * 打开清除角色CSS的管理菜单
+         */
+        async function openCharCssManager() {
+          const choice = await showChoiceModal("清理角色气泡样式", [
+            { text: "🧹 一键清除所有角色的CSS", value: "clear_all" },
+            { text: "🔍 选择特定角色清除", value: "select_char" },
+          ]);
+
+          if (!choice) return;
+
+          if (choice === "clear_all") {
+            await clearAllCharsCustomCss();
+          } else if (choice === "select_char") {
+            await openCharCssSelector();
+          }
+        }
+
+        /**
+         * 清除所有单聊角色的自定义CSS
+         */
+        async function clearAllCharsCustomCss() {
+          // 检查是否有任何角色设置了CSS
+          let hasAny = false;
+          for (const chatId in state.chats) {
+            const chat = state.chats[chatId];
+            if (!chat.isGroup && chat.settings && chat.settings.customCss) {
+              hasAny = true;
+              break;
+            }
+          }
+
+          if (!hasAny) {
+            alert("当前没有任何角色设置了自定义CSS，无需清理。");
+            return;
+          }
+
+          const confirmed = await showCustomConfirm(
+            "确认全清",
+            "确定要清除【所有】角色的自定义气泡样式(CSS)吗？\n此操作将使所有角色恢复默认或全局样式，且不可恢复。",
+            { confirmButtonClass: "btn-danger" },
+          );
+
+          if (!confirmed) return;
+
+          let count = 0;
+          for (const chatId in state.chats) {
+            const chat = state.chats[chatId];
+            if (!chat.isGroup && chat.settings && chat.settings.customCss) {
+              chat.settings.customCss = ""; // 清空
+              count++;
+              await db.chats.put(chat);
+            }
+          }
+
+          // 如果当前正在聊天的角色被清除了，刷新一下界面
+          if (state.activeChatId && !state.chats[state.activeChatId].isGroup) {
+            renderChatInterface(state.activeChatId);
+          }
+
+          alert(`已清除 ${count} 个角色的自定义样式。`);
+        }
+
+        /**
+         * 打开选择器，勾选要清除的角色
+         */
+        async function openCharCssSelector() {
+          // 1. 筛选出所有设置了customCss的角色
+          const chatsWithCss = Object.values(state.chats).filter(
+            (c) => !c.isGroup && c.settings && c.settings.customCss,
+          );
+
+          if (chatsWithCss.length === 0) {
+            alert("当前没有任何角色设置了自定义CSS。");
+            return;
+          }
+
+          // 2. 复用现有的自定义模态框来显示列表
+          const modal = document.getElementById("custom-modal-overlay");
+          const modalTitle = document.getElementById("custom-modal-title");
+          const modalBody = document.getElementById("custom-modal-body");
+          const confirmBtn = document.getElementById("custom-modal-confirm");
+          const cancelBtn = document.getElementById("custom-modal-cancel");
+
+          modalTitle.textContent = "选择要清除样式的角色";
+          modalBody.innerHTML =
+            '<div id="css-char-list" style="max-height: 300px; overflow-y: auto; text-align: left;"></div>';
+
+          const listEl = document.getElementById("css-char-list");
+
+          // 3. 生成列表
+          chatsWithCss.forEach((chat) => {
+            const item = document.createElement("div");
+            item.style.cssText =
+              "display:flex; align-items:center; padding:10px; border-bottom:1px solid #eee; cursor:pointer;";
+            item.innerHTML = `
+            <input type="checkbox" class="css-clear-checkbox" value="${
+              chat.id
+            }" style="margin-right:10px; transform: scale(1.2);">
+            <img src="${
+              chat.settings.aiAvatar || defaultAvatar
+            }" style="width:30px; height:30px; border-radius:50%; margin-right:10px; object-fit: cover;">
+            <div style="flex:1;">
+                <div style="font-weight:bold;">${chat.name}</div>
+                <div style="font-size:10px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 150px;">
+                    ${chat.settings.customCss.substring(0, 30).replace(/\n/g, "")}...
+                </div>
+            </div>
+        `;
+            // 点击行即可勾选
+            item.addEventListener("click", (e) => {
+              if (e.target.type !== "checkbox") {
+                const cb = item.querySelector("input");
+                cb.checked = !cb.checked;
+              }
+            });
+            listEl.appendChild(item);
+          });
+
+          // 4. 设置按钮样式和事件
+          confirmBtn.textContent = "清除选中";
+          confirmBtn.classList.add("btn-danger");
+          cancelBtn.style.display = "block";
+
+          // 克隆按钮以移除旧的监听器
+          const newConfirmBtn = confirmBtn.cloneNode(true);
+          confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+          newConfirmBtn.addEventListener("click", async () => {
+            const selectedCheckboxes = document.querySelectorAll(
+              ".css-clear-checkbox:checked",
+            );
+            if (selectedCheckboxes.length === 0) {
+              alert("请至少选择一个角色。");
+              return;
+            }
+
+            const ids = Array.from(selectedCheckboxes).map((cb) => cb.value);
+            for (const id of ids) {
+              const chat = state.chats[id];
+              if (chat) {
+                chat.settings.customCss = ""; // 清空
+                await db.chats.put(chat);
+              }
+            }
+
+            modal.classList.remove("visible");
+            confirmBtn.classList.remove("btn-danger"); // 恢复样式
+
+            // 如果当前聊天的角色被清除了，刷新界面
+            if (state.activeChatId && ids.includes(state.activeChatId)) {
+              renderChatInterface(state.activeChatId);
+            }
+
+            alert(`已清除 ${ids.length} 个角色的样式。`);
+          });
+
+          // 显示模态框
+          modal.classList.add("visible");
+        }
 
         /**
          * 重命名当前选中的主题
@@ -37849,10 +39042,7 @@ ${libraryList}
           }
           const confirmed = await showCustomConfirm(
             "确认删除",
-            `确定要删除方案 "${
-              document.getElementById("theme-selector").selectedOptions[0]
-                .textContent
-            }" 吗？`,
+            `确定要删除方案 "${document.getElementById("theme-selector").selectedOptions[0].textContent}" 吗？`,
             { confirmButtonClass: "btn-danger" },
           );
           if (confirmed) {
@@ -38034,9 +39224,7 @@ ${libraryList}
 
           footer.innerHTML = `
 			        <button id="preset-action-save-new">保存当前配置为新预设</button>
-			        <button id="preset-action-update-current" ${
-                !selectedPreset ? "disabled" : ""
-              }>更新当前配置</button>
+			        <button id="preset-action-update-current" ${!selectedPreset ? "disabled" : ""}>更新当前配置</button>
 			        <button id="preset-action-delete-current" class="btn-danger" ${
                 !selectedPreset ? "disabled" : ""
               }>删除当前配置</button>
@@ -38220,12 +39408,8 @@ ${libraryList}
 
           footer.innerHTML = `
 			        <button id="preset-action-save-new">保存</button>
-			        <button id="preset-action-update-current" ${
-                !selectedPreset ? "disabled" : ""
-              }>更新</button>
-			        <button id="preset-action-delete-current" class="btn-danger" ${
-                !selectedPreset ? "disabled" : ""
-              }>删除</button>
+			        <button id="preset-action-update-current" ${!selectedPreset ? "disabled" : ""}>更新</button>
+			        <button id="preset-action-delete-current" class="btn-danger" ${!selectedPreset ? "disabled" : ""}>删除</button>
 			        <button id="preset-action-cancel" style="margin-top: 8px; border-radius: 8px; background-color: #f0f0f0;">取消</button>
 			    `;
 
@@ -38751,9 +39935,7 @@ ${libraryList}
 
           let reportMessage = `批量导入完成！\n\n成功导入：${successCount} 个表情。`;
           if (errorLines.length > 0) {
-            reportMessage += `\n失败行号：${errorLines.join(
-              ", ",
-            )}。\n\n请检查这些行的格式是否正确。`;
+            reportMessage += `\n失败行号：${errorLines.join(", ")}。\n\n请检查这些行的格式是否正确。`;
           }
           await showCustomAlert("导入报告", reportMessage);
         }
@@ -39016,9 +40198,7 @@ ${libraryList}
           // 应用样式
           bar.style.fontSize = `${lyricsBarSettings.fontSize}px`;
           bar.style.color = lyricsBarSettings.fontColor;
-          bar.style.backgroundColor = `rgba(0, 0, 0, ${
-            lyricsBarSettings.bgOpacity / 100
-          })`;
+          bar.style.backgroundColor = `rgba(0, 0, 0, ${lyricsBarSettings.bgOpacity / 100})`;
 
           // 更新设置模态框里的控件值
           document.getElementById("lyrics-font-size-slider").value =
@@ -39086,11 +40266,7 @@ ${libraryList}
               timeText = "就是现在！";
             }
 
-            context += `- **${
-              item.description
-            }**: ${timeText} (目标: ${new Date(
-              item.targetDate,
-            ).toLocaleString()})\n`;
+            context += `- **${item.description}**: ${timeText} (目标: ${new Date(item.targetDate).toLocaleString()})\n`;
           });
 
           return context;
@@ -39127,9 +40303,7 @@ ${libraryList}
             item.className = "character-select-item";
             item.dataset.chatId = char.id;
             item.innerHTML = `
-			            <img src="${char.settings.aiAvatar || defaultAvatar}" alt="${
-                    char.name
-                  }">
+			            <img src="${char.settings.aiAvatar || defaultAvatar}" alt="${char.name}">
 			            <span class="name">${char.name}</span>
 			        `;
             listEl.appendChild(item);
@@ -39459,9 +40633,7 @@ ${libraryList}
                             用户指定了你必须生成与以下角色的对话。你【必须】为列表中的**每一位**角色生成一段独立的对话，不能遗漏，也不能编造列表以外的人。
 
                             # 指定角色列表
-                            ${specificTargets
-                              .map((t) => `- **${t.name}**: ${t.persona}`)
-                              .join("\n")}
+                            ${specificTargets.map((t) => `- **${t.name}**: ${t.persona}`).join("\n")}
 
                             # 格式要求
                             请在返回的 JSON "chats" 数组中，严格按照上述指定的 "contactName" 生成对应的聊天记录。
@@ -39662,9 +40834,7 @@ ${libraryList}
                 });
 
             if (!response.ok) {
-              let errorMsg = `API请求失败: ${
-                response.status
-              } - ${await response.text()}`;
+              let errorMsg = `API请求失败: ${response.status} - ${await response.text()}`;
               throw new Error(errorMsg);
             }
 
@@ -39764,9 +40934,7 @@ ${libraryList}
 
             await db.chats.put(chat);
             alert(
-              `“${chat.name}”的${
-                dataTypeMap[dataType].description.split("。")[0]
-              }已更新！`,
+              `“${chat.name}”的${dataTypeMap[dataType].description.split("。")[0]}已更新！`,
             );
 
             switch (dataType) {
@@ -40100,9 +41268,7 @@ ${libraryList}
 			# 【【【重要指令：关于聊天记录生成】】】
 			- 你正在续写这段对话。你提供的聊天记录是上下文，你【绝对不能】重复或改写其中的任何内容。你的生成必须从【全新的、下一条】消息开始。
 			- 你必须严格遵守本提示词最上方的【绝对禁止事项】。
-			- 如果“你的专属NPC好友列表”不为空，你【必须】为列表中的【每一个NPC】都生成一段与你（${
-        chat.name
-      }）的对话。
+			- 如果“你的专属NPC好友列表”不为空，你【必须】为列表中的【每一个NPC】都生成一段与你（${chat.name}）的对话。
 			- 如果列表为空，你可以虚构2-3个普通朋友并生成对话。
 			- 你必须为每个联系人生成一段【至少包含5条消息】的对话。
 			- 对话内容应该自然流畅，可以包含连续发言、表情包和表情符号等，以体现真实感。
@@ -40362,9 +41528,7 @@ ${libraryList}
 			                        <img src="${myAvatar}" class="avatar" style="border-radius: 6px;">
 			                        <div class="info">
 			                            <span class="name">${remarkNameForMe}</span>
-			                            <div class="last-msg">${stripHtmlAndCode(
-                                    String(lastMsg.content),
-                                  ).substring(0, 30)}</div>
+			                            <div class="last-msg">${stripHtmlAndCode(String(lastMsg.content)).substring(0, 30)}</div>
 			                        </div>
 			                    `;
           listEl.appendChild(myChatItem);
@@ -40501,9 +41665,7 @@ ${libraryList}
             }
 
             const isSentByCharacter = sender === characterName;
-            container.className = `character-chat-bubble-container ${
-              isSentByCharacter ? "sent" : "received"
-            }`;
+            container.className = `character-chat-bubble-container ${isSentByCharacter ? "sent" : "received"}`;
 
             let avatarHtml = "";
             if (isSentByCharacter) {
@@ -40784,15 +41946,11 @@ ${libraryList}
 			                <div class="transaction-icon" style="background-color: ${iconBg};">${iconSvg}</div>
 			                <div>
 			                    <div class="title">${displayDescription}</div>
-			                    <div class="meta" style="border:none; padding:0; margin-top:4px;"><span>${
-                            item.type
-                          }</span></div>
+			                    <div class="meta" style="border:none; padding:0; margin-top:4px;"><span>${item.type}</span></div>
 			                </div>
 			            </div>
 			            <div style="display: flex; align-items: center; gap: 10px;">
-			                <span class="transaction-amount ${
-                        isIncome ? "income" : "expense"
-                      }">
+			                <span class="transaction-amount ${isIncome ? "income" : "expense"}">
 			                    ${isIncome ? "+" : "-"} ${item.amount.toFixed(2)}
 			                </span>
 			                <button class="item-delete-btn" data-type="bank.transactions" data-index="${originalIndex}">×</button>
@@ -41298,14 +42456,10 @@ ${libraryList}
             let bubble;
             if (isVisualMode) {
               bubble = document.createElement("div");
-              bubble.className = `visual-call-bubble ${
-                msg.role === "user" ? "user" : "ai"
-              }`;
+              bubble.className = `visual-call-bubble ${msg.role === "user" ? "user" : "ai"}`;
             } else {
               bubble = document.createElement("div");
-              bubble.className = `call-message-bubble ${
-                msg.role === "user" ? "user-speech" : "ai-speech"
-              }`;
+              bubble.className = `call-message-bubble ${msg.role === "user" ? "user-speech" : "ai-speech"}`;
             }
             bubble.textContent = msg.content;
             callFeed.appendChild(bubble);
@@ -41526,6 +42680,7 @@ ${libraryList}
 
         /**
          * 渲染心声的历史记录列表
+         * (已修复：支持显示自定义标签名)
          */
         function renderInnerVoiceHistory() {
           const listEl = document.getElementById("inner-voice-history-list");
@@ -41539,15 +42694,25 @@ ${libraryList}
             return;
           }
 
+          // === 新增：获取当前自定义标签 ===
+          // 防止 chat.settings.innerVoiceTags 为空
+          const tags = chat.settings.innerVoiceTags || {};
+          // 如果用户没设置过，就用默认值
+          const label1 = tags.clothing_label || "服装";
+          const label2 = tags.behavior_label || "行为";
+          const label3 = tags.thoughts_label || "心声";
+          const label4 = tags.naughty_label || "坏心思";
+          // ==============================
+
           // 从新到旧显示
           [...history].reverse().forEach((item) => {
             const itemEl = document.createElement("div");
             itemEl.className = "inner-voice-history-item";
 
             const date = new Date(item.timestamp);
-            const dateString = `${date.getFullYear()}-${String(
-              date.getMonth() + 1,
-            ).padStart(2, "0")}-${String(date.getDate()).padStart(
+            const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+              date.getDate(),
+            ).padStart(
               2,
               "0",
             )} ${String(date.getHours()).padStart(2, "0")}:${String(
@@ -41555,21 +42720,21 @@ ${libraryList}
             ).padStart(2, "0")}`;
 
             // 在HTML中加入删除按钮
+            // 关键修改点：将原来的中文写死，替换为上面获取的变量 ${labelX}
             itemEl.innerHTML = `
-			            <button class="history-item-delete-btn" data-timestamp="${
-                    item.timestamp
-                  }">×</button>
+			            <button class="history-item-delete-btn" data-timestamp="${item.timestamp}">×</button>
 			            <div class="history-item-timestamp">${dateString}</div>
 			            <div class="history-item-content">
-			                <p><strong>服装:</strong> ${item.clothing || "..."}</p>
-			                <p><strong>行为:</strong> ${item.behavior || "..."}</p>
-			                <p><strong>心声:</strong> ${item.thoughts || "..."}</p>
-			                <p><strong>坏心思:</strong> ${item.naughtyThoughts || "..."}</p>
+			                <p><strong>${label1}:</strong> ${item.clothing || "..."}</p>
+			                <p><strong>${label2}:</strong> ${item.behavior || "..."}</p>
+			                <p><strong>${label3}:</strong> ${item.thoughts || "..."}</p>
+			                <p><strong>${label4}:</strong> ${item.naughtyThoughts || "..."}</p>
 			            </div>
 			        `;
             listEl.appendChild(itemEl);
           });
         }
+
         /**
          * 删除单条心声记录
          * @param {number} timestamp - 要删除的心声的时间戳
@@ -42312,9 +43477,7 @@ ${libraryList}
 			            <div class="search-result-info">
 			                <div class="search-result-meta">
 			                    <span class="name">${senderName}</span>
-			                    <span class="timestamp">${formatDateStamp(
-                            msg.timestamp,
-                          )}</span>
+			                    <span class="timestamp">${formatDateStamp(msg.timestamp)}</span>
 			                </div>
 			                <div class="search-result-content">
 			                    ${highlightText(contentText, currentSearchKeyword)}
@@ -42707,6 +43870,10 @@ ${libraryList}
             "widget-month-display": document.getElementById(
               "widget-month-display",
             ).textContent,
+            "music-rect-img": document.getElementById("music-rect-img").src,
+            "music-record-img": document.getElementById("music-record-img").src,
+            "music-text-line":
+              document.getElementById("music-text-line").textContent,
 
             // --- App图标和壁纸 ---
             appIcons: { ...state.globalSettings.appIcons },
@@ -42798,6 +43965,11 @@ ${libraryList}
               "widget-month-display": document.getElementById(
                 "widget-month-display",
               ).textContent,
+              "music-rect-img": document.getElementById("music-rect-img").src,
+              "music-record-img":
+                document.getElementById("music-record-img").src,
+              "music-text-line":
+                document.getElementById("music-text-line").textContent,
               appIcons: { ...state.globalSettings.appIcons },
               appLabels: { ...state.globalSettings.appLabels },
               wallpaper: state.globalSettings.wallpaper,
@@ -43326,9 +44498,7 @@ ${libraryList}
 
             cardWrapper.innerHTML = `
 			            <div class="tarot-card-position">[${card.position}]</div>
-			            <div class="tarot-card-name">${card.name} ${
-                    card.isReversed ? "(逆位)" : "(正位)"
-                  }</div>
+			            <div class="tarot-card-name">${card.name} ${card.isReversed ? "(逆位)" : "(正位)"}</div>
 			        `;
             container.appendChild(cardWrapper);
           });
@@ -43527,12 +44697,8 @@ ${libraryList}
             item.className = "tarot-history-item";
             item.innerHTML = `
 			            <div class="question">${reading.question}</div>
-			            <div class="details">${new Date(
-                    reading.timestamp,
-                  ).toLocaleString()}</div>
-			            <button class="tarot-history-delete-btn" data-id="${
-                    reading.id
-                  }">×</button>
+			            <div class="details">${new Date(reading.timestamp).toLocaleString()}</div>
+			            <button class="tarot-history-delete-btn" data-id="${reading.id}">×</button>
 			        `;
             listEl.appendChild(item);
           });
@@ -44749,17 +45915,10 @@ ${libraryList}
 			                    <button class="concise-summary-btn" data-timestamp="${
                             summary.timestamp
                           }" title="精简总结">✨</button>
-			                    <button class="edit-summary-btn" data-timestamp="${
-                            summary.timestamp
-                          }" title="编辑">✏️</button>
-			                    <button class="delete-summary-btn" data-timestamp="${
-                            summary.timestamp
-                          }" title="删除">🗑️</button>
+			                    <button class="edit-summary-btn" data-timestamp="${summary.timestamp}" title="编辑">✏️</button>
+			                    <button class="delete-summary-btn" data-timestamp="${summary.timestamp}" title="删除">🗑️</button>
 			                </div>
-			                <div class="summary-content">${summary.content.replace(
-                        /\n/g,
-                        "<br>",
-                      )}</div>
+			                <div class="summary-content">${summary.content.replace(/\n/g, "<br>")}</div>
 			                <div class="summary-meta">
 			                    <span>生成于: ${new Date(summary.timestamp).toLocaleString(
                             "zh-CN",
@@ -45103,9 +46262,7 @@ ${libraryList}
           await db.chats.put(chat);
 
           console.log(
-            `✅ 钱包同步成功: 角色[${
-              chat.name
-            }], 交易[${description}], 金额[${amount.toFixed(
+            `✅ 钱包同步成功: 角色[${chat.name}], 交易[${description}], 金额[${amount.toFixed(
               2,
             )}], 新余额[${chat.characterPhoneData.bank.balance.toFixed(2)}]`,
           );
@@ -47045,9 +48202,7 @@ ${libraryList}
 
           await showCustomAlert(
             "操作成功",
-            `分割线已${
-              chat.settings.innerVoiceHideHeaderBorder ? "隐藏" : "显示"
-            }。`,
+            `分割线已${chat.settings.innerVoiceHideHeaderBorder ? "隐藏" : "显示"}。`,
           );
         }
 
@@ -47093,10 +48248,7 @@ ${libraryList}
           if (!hex || hex.length < 4) return "255, 255, 255";
           let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
           return result
-            ? `${parseInt(result[1], 16)}, ${parseInt(
-                result[2],
-                16,
-              )}, ${parseInt(result[3], 16)}`
+            ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
             : "255, 255, 255";
         }
 
@@ -47315,9 +48467,7 @@ ${libraryList}
 
           const systemPrompt = `
 			# 任务
-			你是一个群聊成员生成器。请根据用户的要求，为群聊“${
-        chat.name
-      }”创建${count}个新成员。
+			你是一个群聊成员生成器。请根据用户的要求，为群聊“${chat.name}”创建${count}个新成员。
 
 			# 用户要求:
 			${requirements || "无特殊要求，请自由发挥。"}
@@ -47405,9 +48555,7 @@ ${libraryList}
                 await db.chats.put(chat);
                 await logSystemMessage(
                   chat.id,
-                  `邀请了 ${addedNames.length} 位新成员: ${addedNames.join(
-                    "、",
-                  )}加入了群聊。`,
+                  `邀请了 ${addedNames.length} 位新成员: ${addedNames.join("、")}加入了群聊。`,
                 );
                 await showCustomAlert(
                   "生成成功！",
@@ -48031,9 +49179,7 @@ ${libraryList}
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `EPhone-Partial-Backup-${
-              new Date().toISOString().split("T")[0]
-            }.json`;
+            link.download = `EPhone-Partial-Backup-${new Date().toISOString().split("T")[0]}.json`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -48760,9 +49906,7 @@ ${libraryList}
               }
             }
 
-            displayEl.textContent = `当前图片数据总量约: ${formatBytes(
-              totalSize,
-            )}`;
+            displayEl.textContent = `当前图片数据总量约: ${formatBytes(totalSize)}`;
             return totalSize; // 返回计算出的总大小
           } catch (error) {
             console.error("计算图片大小时出错:", error);
@@ -48855,13 +49999,9 @@ ${libraryList}
 
             await showCustomAlert(
               "压缩完成！",
-              `操作成功！\n原始大小: ${formatBytes(
-                originalTotalSize,
-              )}\n压缩后大小: ${formatBytes(
+              `操作成功！\n原始大小: ${formatBytes(originalTotalSize)}\n压缩后大小: ${formatBytes(
                 newTotalSize,
-              )}\n成功为您节省了 ${formatBytes(
-                savedSize,
-              )} 的空间！\n\n应用即将刷新以应用所有更改。`,
+              )}\n成功为您节省了 ${formatBytes(savedSize)} 的空间！\n\n应用即将刷新以应用所有更改。`,
             );
 
             setTimeout(() => window.location.reload(), 2000);
@@ -49013,9 +50153,7 @@ ${libraryList}
           const url = URL.createObjectURL(await response.blob());
           const link = document.createElement("a");
           link.href = url;
-          link.download = `EPhone-Stream-Backup-${
-            new Date().toISOString().split("T")[0]
-          }.json`;
+          link.download = `EPhone-Stream-Backup-${new Date().toISOString().split("T")[0]}.json`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -49180,9 +50318,8 @@ ${libraryList}
             (sum, count) => sum + count,
             0,
           );
-          document.getElementById("intimacy-streak-days").textContent = `${
-            chat.settings.streak?.currentDays || 0
-          } 天`;
+          document.getElementById("intimacy-streak-days").textContent =
+            `${chat.settings.streak?.currentDays || 0} 天`;
           document.getElementById("intimacy-today-msgs").textContent =
             `${todayMsgs} 条`;
           document.getElementById("intimacy-total-msgs").textContent =
@@ -49211,9 +50348,7 @@ ${libraryList}
               chat.settings.selectedIntimacyBadge === threshold.symbol;
 
             const item = document.createElement("div");
-            item.className = `symbol-item ${isUnlocked ? "unlocked" : ""} ${
-              isSelected ? "selected" : ""
-            }`;
+            item.className = `symbol-item ${isUnlocked ? "unlocked" : ""} ${isSelected ? "selected" : ""}`;
 
             // 使用 <img> 标签来显示图片
             item.innerHTML = `
@@ -49221,9 +50356,7 @@ ${libraryList}
 			                <img src="${threshold.symbol}" alt="${threshold.name}">
 			            </div>
 			            <div class="symbol-name">${threshold.name}</div>
-			            <div class="symbol-level">${
-                    isUnlocked ? "已解锁" : `${threshold.level}分解锁`
-                  }</div>
+			            <div class="symbol-level">${isUnlocked ? "已解锁" : `${threshold.level}分解锁`}</div>
 			        `;
 
             // 只有解锁了的徽章才能点击
@@ -49251,9 +50384,7 @@ ${libraryList}
                 record.symbol
               }" style="height:1em; vertical-align:middle;"></span><span>${
                 record.name
-              }</span><span class="date">${new Date(
-                record.unlockedAt,
-              ).toLocaleDateString()}</span>`;
+              }</span><span class="date">${new Date(record.unlockedAt).toLocaleDateString()}</span>`;
               recordsContainer.appendChild(recordItem);
             });
           } else {
@@ -49615,9 +50746,7 @@ ${libraryList}
             const item = document.createElement("div");
             item.className = "list-item";
             item.dataset.bookId = book.id;
-            item.innerHTML = `<div class="item-title">${
-              book.name
-            }</div><div class="item-content">${(
+            item.innerHTML = `<div class="item-title">${book.name}</div><div class="item-content">${(
               book.content || "暂无内容..."
             ).substring(0, 50)}</div>`;
 
@@ -49957,9 +51086,7 @@ ${libraryList}
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
-          link.download = `EPhone-QuickReplies-${
-            new Date().toISOString().split("T")[0]
-          }.json`;
+          link.download = `EPhone-QuickReplies-${new Date().toISOString().split("T")[0]}.json`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -50109,10 +51236,7 @@ ${libraryList}
 
             // 获取心声预览 (如果有)
             if (cp.latestInnerVoice && cp.latestInnerVoice.thoughts) {
-              previewText += ` | 心声: ${cp.latestInnerVoice.thoughts.substring(
-                0,
-                10,
-              )}...`;
+              previewText += ` | 心声: ${cp.latestInnerVoice.thoughts.substring(0, 10)}...`;
             }
 
             item.innerHTML = `
@@ -50813,9 +51937,7 @@ ${libraryList}
             rowBooks.forEach((book) => {
               const bookEl = document.createElement("div");
               // 随机分配一种颜色
-              const colorClass = `book-color-${
-                Math.floor(Math.random() * 5) + 1
-              }`;
+              const colorClass = `book-color-${Math.floor(Math.random() * 5) + 1}`;
               bookEl.className = `retro-book ${colorClass}`;
               bookEl.title = book.title; // 鼠标悬停显示全名
               bookEl.innerHTML = `<span class="book-spine-title">${book.title}</span>`;
@@ -51085,9 +52207,7 @@ ${libraryList}
               let data = null;
               if (task.type === "table") {
                 // 对于大表，这里读取可能会花一点时间，UI更新一下
-                loadingText.textContent = `[${
-                  i + 1
-                }/${totalTasks}] 读取本地数据: ${task.name}...`;
+                loadingText.textContent = `[${i + 1}/${totalTasks}] 读取本地数据: ${task.name}...`;
                 // 给UI一点渲染时间
                 await sleep(50);
                 data = await db[task.name].toArray();
@@ -51103,9 +52223,7 @@ ${libraryList}
 
               if (!data) continue;
 
-              loadingText.textContent = `[${i + 1}/${totalTasks}] 正在编码: ${
-                task.name
-              }...`;
+              loadingText.textContent = `[${i + 1}/${totalTasks}] 正在编码: ${task.name}...`;
               await sleep(20);
 
               // 序列化并转Base64
@@ -51129,10 +52247,7 @@ ${libraryList}
                   const start = c * CHUNK_SIZE;
                   const end = Math.min(start + CHUNK_SIZE, totalSize);
                   const chunkContent = contentBase64.substring(start, end);
-                  const partName = `${fileName}.${String(c + 1).padStart(
-                    3,
-                    "0",
-                  )}`;
+                  const partName = `${fileName}.${String(c + 1).padStart(3, "0")}`;
 
                   // 使用重试机制上传
                   await uploadWithRetry(partName, chunkContent);
@@ -51150,9 +52265,7 @@ ${libraryList}
                 const metaBase64 = btoa(JSON.stringify(metaInfo));
                 await uploadWithRetry(`${fileName}.meta`, metaBase64);
               } else {
-                loadingText.textContent = `[${i + 1}/${totalTasks}] 正在上传: ${
-                  task.name
-                }...`;
+                loadingText.textContent = `[${i + 1}/${totalTasks}] 正在上传: ${task.name}...`;
                 await uploadWithRetry(fileName, contentBase64);
                 await sleep(500); // 小文件也稍微休息一下
               }
@@ -51373,9 +52486,7 @@ ${libraryList}
             // 2. 循环处理所有任务
             for (let i = 0; i < totalTasks; i++) {
               const task = allTasks[i];
-              loadingText.textContent = `[${
-                completedTasks + 1
-              }/${totalTasks}] 正在恢复: ${task.name}...`;
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在恢复: ${task.name}...`;
 
               try {
                 const data = await downloadAndMerge(task.name, task.type);
@@ -51544,9 +52655,7 @@ ${libraryList}
 
             // 3. 循环恢复表
             for (const tableName of tablesToImport) {
-              loadingText.textContent = `[${
-                completedTasks + 1
-              }/${totalTasks}] 正在下载并导入: ${tableName}...`;
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在下载并导入: ${tableName}...`;
               const fileName = `${basePath}_${tableName}.json`;
               if (await downloadAndImport(fileName, tableName, false)) {
                 successCount++;
@@ -51556,9 +52665,7 @@ ${libraryList}
 
             // 4. 循环恢复配置
             for (const configName of singleObjects) {
-              loadingText.textContent = `[${
-                completedTasks + 1
-              }/${totalTasks}] 正在下载并导入配置: ${configName}...`;
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在下载并导入配置: ${configName}...`;
               const fileName = `${basePath}_${configName}.json`;
               if (await downloadAndImport(fileName, configName, true)) {
                 successCount++;
@@ -51979,10 +53086,657 @@ ${libraryList}
           document.getElementById("new-couple-char-avatar-preview").src =
             base64;
         });
+        // ==========================================
+        // ★★★ 新增功能：全局路人头像库逻辑 ★★★
+        // ==========================================
+
+        // 1. 打开管理界面
+        async function openPasserbyManager() {
+          await renderPasserbyGrid();
+          document
+            .getElementById("passerby-avatar-manager-modal")
+            .classList.add("visible");
+        }
+
+        // 2. 渲染网格
+        async function renderPasserbyGrid() {
+          const grid = document.getElementById("passerby-avatar-grid");
+          const countSpan = document.getElementById("passerby-count");
+          grid.innerHTML = "";
+
+          // 从数据库获取所有
+          const avatars = await db.passerbyAvatars.toArray();
+          countSpan.textContent = avatars.length;
+
+          // 更新全局缓存 (重要)
+          window.state.passerbyAvatars = avatars;
+
+          if (avatars.length === 0) {
+            grid.innerHTML =
+              '<p style="grid-column:1/-1; text-align:center; color:#999;">图库为空，快去添加一些吧！</p>';
+            return;
+          }
+
+          avatars.forEach((item) => {
+            const div = document.createElement("div");
+            div.className = "sticker-item"; // 复用现有的贴纸样式
+            div.style.backgroundImage = `url(${item.url})`;
+            div.style.borderRadius = "8px";
+            div.style.aspectRatio = "1/1";
+
+            // 删除按钮
+            const delBtn = document.createElement("div");
+            delBtn.className = "delete-btn";
+            delBtn.innerHTML = "×";
+            delBtn.style.display = "block";
+            delBtn.onclick = async (e) => {
+              e.stopPropagation();
+              if (confirm("确定删除这张头像吗？")) {
+                await db.passerbyAvatars.delete(item.id);
+                renderPasserbyGrid();
+              }
+            };
+
+            div.appendChild(delBtn);
+            grid.appendChild(div);
+          });
+        }
+
+        // 3. 处理添加头像 (支持本地多选 和 URL)
+        async function handleAddPasserbyAvatar() {
+          const choice = await showChoiceModal("添加方式", [
+            { text: "📁 本地上传 (支持多选)", value: "local" },
+            { text: "🌐 网络图片URL", value: "url" },
+          ]);
+
+          if (!choice) return;
+
+          if (choice === "local") {
+            document.getElementById("passerby-upload-input").click();
+          } else if (choice === "url") {
+            const url = await showCustomPrompt("输入URL", "请输入图片链接");
+            if (url && url.trim()) {
+              await db.passerbyAvatars.add({ url: url.trim() });
+              alert("添加成功");
+              // 如果管理界面开着，就刷新它
+              if (
+                document
+                  .getElementById("passerby-avatar-manager-modal")
+                  .classList.contains("visible")
+              ) {
+                renderPasserbyGrid();
+              }
+            }
+          }
+        }
+
+        // 4. 处理本地文件选择
+        async function handlePasserbyFileChange(event) {
+          const files = event.target.files;
+          if (!files.length) return;
+
+          // 显示加载提示
+          const btn = document.getElementById("add-passerby-avatar-btn");
+          const originalText = btn.textContent;
+          btn.textContent = "处理中...";
+
+          const newItems = [];
+          for (const file of files) {
+            // 复用你的图片压缩函数 handleImageUploadAndCompress
+            try {
+              const base64 = await handleImageUploadAndCompress(file);
+              newItems.push({ url: base64 });
+            } catch (e) {
+              console.error("图片处理失败", e);
+            }
+          }
+
+          if (newItems.length > 0) {
+            await db.passerbyAvatars.bulkAdd(newItems);
+            alert(`成功添加 ${newItems.length} 张头像！`);
+            // 刷新缓存
+            window.state.passerbyAvatars = await db.passerbyAvatars.toArray();
+            // 如果管理界面开着，刷新
+            if (
+              document
+                .getElementById("passerby-avatar-manager-modal")
+                .classList.contains("visible")
+            ) {
+              renderPasserbyGrid();
+            }
+          }
+
+          btn.textContent = originalText;
+          event.target.value = null; // 清空
+        }
+
+        // 5. 【核心工具函数】根据名字获取头像
+        // 如果名字相同，尽量返回相同的头像（伪随机）；如果没有库，返回默认。
+        window.getAvatarForName = function (name) {
+          const lib = window.state.passerbyAvatars || [];
+          if (lib.length === 0)
+            return "https://i.postimg.cc/PxZrFFFL/o-o-1.jpg"; // 默认头像
+
+          // 简单的哈希算法，将名字转为数字
+          let hash = 0;
+          for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+          }
+
+          // 取绝对值并取模
+          const index = Math.abs(hash) % lib.length;
+          return lib[index].url;
+        };
+        /**
+         * 统一的 Pollinations 生图函数 (从 Taobao, Date, XHS 提取并合并)
+         * 优先使用 API Key，支持无限重试机制
+         * @param {string} prompt - 英文提示词
+         * @param {object} options - 配置项 { width, height, model, seed, nologo }
+         * @returns {Promise<string>} - 返回图片地址 (Blob URL 或 公网 URL)
+         */
+        window.generatePollinationsImage = async function (
+          prompt,
+          options = {},
+        ) {
+          const {
+            width = 1024,
+            height = 1024,
+            model = "flux",
+            seed = Math.floor(Math.random() * 100000),
+            nologo = false,
+          } = options;
+
+          console.log(
+            `[Global Image Gen] Prompt: ${prompt}, Options:`,
+            options,
+          );
+
+          while (true) {
+            try {
+              const encodedPrompt = encodeURIComponent(prompt);
+              // 尝试获取全局 state，如果不存在则为 null
+              const currentApiConfig =
+                window.state && window.state.apiConfig
+                  ? window.state.apiConfig
+                  : null;
+              const pollApiKey = currentApiConfig
+                ? currentApiConfig.pollinationsApiKey
+                : null;
+
+              // 构建基础参数
+              let queryParams = `width=${width}&height=${height}&seed=${seed}&model=${model}`;
+              if (nologo) queryParams += "&nologo=true";
+
+              // 1. === 有 API Key 的情况 ===
+              if (pollApiKey) {
+                const primaryUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?${queryParams}&key=${pollApiKey}`;
+                console.log(
+                  `[Global Image Gen] 使用 API Key 请求: ${primaryUrl}`,
+                );
+
+                const response = await fetch(primaryUrl, { method: "GET" });
+
+                if (!response.ok) {
+                  throw new Error(`API Key 请求失败: ${response.status}`);
+                }
+
+                const blob = await response.blob();
+                // 将 Blob 转为 Base64 以便存储和持久化加载 (解决 blob:null 报错问题)
+                return await new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result);
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                });
+              }
+
+              // 2. === 无 API Key (公开接口) 的情况 ===
+              // 定义加载器
+              const loadImage = (url) =>
+                new Promise((resolve, reject) => {
+                  const img = new Image();
+                  img.src = url;
+                  img.onload = () => resolve(url);
+                  img.onerror = () => reject(new Error(`图片加载失败: ${url}`));
+                });
+
+              // 优先尝试 gen.pollinations.ai
+              const primaryUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?${queryParams}`;
+
+              return await loadImage(primaryUrl).catch(async () => {
+                console.warn(`[Global Image Gen] 主接口失败，尝试备用接口...`);
+                // 备用接口 pollinations.ai/p/
+                const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?${queryParams}`;
+                return await loadImage(fallbackUrl);
+              });
+            } catch (error) {
+              console.error(
+                `[Global Image Gen] 生成失败，5秒后自动重试... 错误: ${error.message}`,
+              );
+              await new Promise((resolve) => setTimeout(resolve, 5000));
+            }
+          }
+        };
+        /* ==================================================
+   【全屏三击触发版】桌面拖拽系统
+   触发方式：在主屏幕任意位置（非弹窗/非设置页）连续点击 3 次
+   修复内容：包含对第二页组件位置的逻辑兼容
+   ================================================== */
+        function initDesktopManager() {
+          const homeScreen = document.getElementById("home-screen");
+          const doneBtn = document.getElementById("desktop-edit-done-btn");
+          const sliderContainer = document.querySelector(".home-screen-slider");
+
+          // 创建“重置布局”按钮
+          let resetBtn = document.getElementById("desktop-reset-layout-btn");
+          if (!resetBtn) {
+            resetBtn = document.createElement("div");
+            resetBtn.id = "desktop-reset-layout-btn";
+            resetBtn.textContent = "重置布局";
+            resetBtn.style.cssText = `
+            position: absolute;
+            top: 50px;
+            right: 80px; 
+            background: rgba(255, 59, 48, 0.9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10000;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            display: none; 
+        `;
+            homeScreen.appendChild(resetBtn);
+          }
+
+          // 定义所有可拖拽的目标
+          const selector =
+            ".home-page .desktop-app-icon, .home-page .custom-widget-container, #new-custom-widget, #profile-widget, #desktop-widget-column, #center-avatar-wrapper, .draggable-group, #glass-music-widget";
+
+          let isEditMode = false;
+          let dragItem = null;
+          let originalParent = null;
+          let shiftX = 0;
+          let shiftY = 0;
+
+          // --- 初始化ID ---
+          const assignStableIds = () => {
+            document.querySelectorAll(selector).forEach((el, index) => {
+              if (!el.id) {
+                const label = el.querySelector(".label");
+                const innerImg = el.querySelector("img[id^='icon-img-']");
+                if (innerImg && innerImg.id) {
+                  el.id = "wrapper_" + innerImg.id;
+                } else if (label) {
+                  el.id = "auto_pos_" + label.innerText.trim();
+                } else {
+                  el.id = "auto_pos_idx_" + index;
+                }
+              }
+            });
+          };
+          assignStableIds();
+
+          // 延迟恢复布局，并应用CSS居中修复
+          setTimeout(() => {
+            restoreLayout();
+            // 强制刷新一次第二页组件的位置，确保CSS生效
+            const centerWidget = document.getElementById(
+              "center-avatar-wrapper",
+            );
+            if (centerWidget && centerWidget.style.position !== "absolute") {
+              // 如果没有被拖拽过（没有保存绝对定位），则清除内联样式，让CSS的居中生效
+              centerWidget.style.left = "";
+              centerWidget.style.top = "";
+              centerWidget.style.transform = "";
+            }
+          }, 200);
+
+          // ============================================================
+          // ★★★ 【重点修改】全屏三击逻辑 ★★★
+          // ============================================================
+          let clickCount = 0;
+          let clickTimer = null;
+
+          // 我们把监听器绑在 homeScreen 上，覆盖整个桌面区域
+          homeScreen.addEventListener(
+            "click",
+            (e) => {
+              // 1. 如果已经在编辑模式，不处理
+              // 2. 如果点击的是“完成”或“重置”按钮，不处理
+              if (
+                isEditMode ||
+                e.target.id === "desktop-edit-done-btn" ||
+                e.target.id === "desktop-reset-layout-btn"
+              )
+                return;
+
+              // 3. 计数
+              clickCount++;
+
+              // 第一次点击开启计时器
+              if (clickCount === 1) {
+                clickTimer = setTimeout(() => {
+                  clickCount = 0; // 500ms 内没点够3次，归零
+                }, 500);
+              }
+
+              // 达到3次
+              if (clickCount >= 3) {
+                clearTimeout(clickTimer);
+                clickCount = 0;
+
+                // 震动反馈
+                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+
+                // 阻止这次点击可能引发的 APP 打开等行为
+                e.preventDefault();
+                e.stopPropagation();
+
+                enterEditMode();
+              }
+            },
+            true,
+          ); // 使用捕获阶段 (true)，确保比 APP 图标的点击事件先触发
+
+          // ============================================================
+
+          // --- 拖拽逻辑 ---
+          // 这里去掉了原来的长按计时器，只保留拖拽
+          const handleInputDown = (e) => {
+            if (!isEditMode) return; // 只有编辑模式下才允许拖拽
+
+            if (
+              e.target.id === "desktop-edit-done-btn" ||
+              e.target.id === "desktop-reset-layout-btn"
+            )
+              return;
+
+            let target = e.target.closest(selector);
+            if (target && target.parentElement.closest(selector)) {
+              target = target.parentElement.closest(selector);
+            }
+
+            if (target) {
+              prepareDrag(e, target);
+            }
+          };
+
+          sliderContainer.addEventListener("mousedown", handleInputDown);
+          sliderContainer.addEventListener("touchstart", handleInputDown, {
+            passive: false,
+          });
+
+          // --- 准备拖拽 ---
+          function prepareDrag(e, item) {
+            e.preventDefault();
+            dragItem = item;
+            const rect = dragItem.getBoundingClientRect();
+            originalParent = dragItem.parentNode;
+
+            // 修复：拖拽时如果是居中的组件，先计算出它当前的实际像素位置，转为 absolute left/top
+            // 否则一拖动，transform: translate(-50%, -50%) 会导致坐标突变
+            if (dragItem.id === "center-avatar-wrapper") {
+              dragItem.style.transform = "none"; // 暂时移除 CSS 居中变换
+              dragItem.style.left = rect.left + "px"; // 固化当前视觉位置
+              dragItem.style.top = rect.top + "px";
+            }
+
+            const parentStyle = window.getComputedStyle(originalParent);
+            if (parentStyle.position === "static") {
+              originalParent.style.position = "relative";
+            }
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            shiftX = clientX - rect.left;
+            shiftY = clientY - rect.top;
+
+            document.body.appendChild(dragItem);
+            dragItem.classList.add("is-dragging-active");
+
+            dragItem.style.position = "fixed";
+            dragItem.style.zIndex = "99999";
+            dragItem.style.width = rect.width + "px";
+            dragItem.style.height = rect.height + "px";
+            dragItem.style.left = rect.left + "px";
+            dragItem.style.top = rect.top + "px";
+            dragItem.style.margin = "0"; // 清除 margin
+            dragItem.style.transform = "none"; // 清除 transform
+
+            document.addEventListener("mousemove", onDragMove);
+            document.addEventListener("touchmove", onDragMove, {
+              passive: false,
+            });
+            document.addEventListener("mouseup", onDragEnd);
+            document.addEventListener("touchend", onDragEnd);
+          }
+
+          // --- 拖拽移动 ---
+          function onDragMove(e) {
+            if (!dragItem) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            dragItem.style.left = clientX - shiftX + "px";
+            dragItem.style.top = clientY - shiftY + "px";
+          }
+
+          // --- 拖拽结束 ---
+          function onDragEnd() {
+            if (dragItem && originalParent) {
+              dragItem.classList.remove("is-dragging-active");
+              const rect = dragItem.getBoundingClientRect();
+              const parentRect = originalParent.getBoundingClientRect();
+              const parentStyle = window.getComputedStyle(originalParent);
+              const borderLeft = parseFloat(parentStyle.borderLeftWidth) || 0;
+              const borderTop = parseFloat(parentStyle.borderTopWidth) || 0;
+
+              const relativeLeft =
+                rect.left -
+                parentRect.left -
+                borderLeft +
+                originalParent.scrollLeft;
+              const relativeTop =
+                rect.top -
+                parentRect.top -
+                borderTop +
+                originalParent.scrollTop;
+
+              originalParent.appendChild(dragItem);
+
+              dragItem.style.position = "absolute";
+              dragItem.style.zIndex = "";
+              dragItem.style.left = relativeLeft + "px";
+              dragItem.style.top = relativeTop + "px";
+              dragItem.style.width = rect.width + "px";
+              dragItem.style.height = rect.height + "px";
+              dragItem.style.margin = "0"; // 确保放回后也没有margin
+              dragItem.style.transform = "none"; // 确保放回后没有transform
+
+              // 特殊处理：如果是居中组件，被拖动后，它就变成了普通绝对定位组件
+              // 不需要额外操作，上面的 left/top 已经固化了它的位置
+
+              if (
+                originalParent.clientHeight < 50 &&
+                originalParent.id !== "phone-screen"
+              ) {
+                originalParent.style.minHeight = "100px";
+              }
+
+              dragItem = null;
+              originalParent = null;
+            }
+
+            document.removeEventListener("mousemove", onDragMove);
+            document.removeEventListener("touchmove", onDragMove);
+            document.removeEventListener("mouseup", onDragEnd);
+            document.removeEventListener("touchend", onDragEnd);
+          }
+
+          function enterEditMode() {
+            isEditMode = true;
+            homeScreen.classList.add("editing-mode");
+            doneBtn.style.display = "block";
+            const resetBtn = document.getElementById(
+              "desktop-reset-layout-btn",
+            );
+            if (resetBtn) resetBtn.style.display = "block";
+            document.addEventListener("click", blockClickInEditMode, true);
+          }
+
+          doneBtn.addEventListener("click", () => {
+            isEditMode = false;
+            homeScreen.classList.remove("editing-mode");
+            doneBtn.style.display = "none";
+            const resetBtn = document.getElementById(
+              "desktop-reset-layout-btn",
+            );
+            if (resetBtn) resetBtn.style.display = "none";
+            document.removeEventListener("click", blockClickInEditMode, true);
+            saveLayout();
+          });
+
+          resetBtn.addEventListener("click", async () => {
+            if (confirm("确定要重置所有布局吗？页面将刷新。")) {
+              if (window.state && window.state.globalSettings) {
+                window.state.globalSettings.desktopLayoutV2 = null;
+                await window.db.globalSettings.put(window.state.globalSettings);
+                location.reload();
+              }
+            }
+          });
+
+          function blockClickInEditMode(e) {
+            if (
+              e.target.id === "desktop-edit-done-btn" ||
+              e.target.id === "desktop-reset-layout-btn"
+            )
+              return;
+            if (isEditMode) {
+              e.stopPropagation();
+              e.preventDefault();
+            }
+          }
+
+          // --- 保存布局 ---
+          async function saveLayout() {
+            if (!window.db || !window.state) return;
+            assignStableIds();
+            const layoutData = {};
+            const items = document.querySelectorAll(selector);
+            items.forEach((item) => {
+              // 检查：只有当元素被明确设为 absolute 时才保存位置
+              // 这可以兼容第一步CSS里写的初始居中状态（没有absolute left/top）
+              if (
+                item.id &&
+                item.style.position === "absolute" &&
+                item.style.left
+              ) {
+                layoutData[item.id] = {
+                  left: item.style.left,
+                  top: item.style.top,
+                  width: item.style.width,
+                  height: item.style.height,
+                  parentId: item.parentNode.id || null,
+                };
+              }
+            });
+            window.state.globalSettings.desktopLayoutV2 = layoutData;
+            await window.db.globalSettings.put(window.state.globalSettings);
+          }
+
+          // --- 恢复布局 ---
+          async function restoreLayout() {
+            if (!window.db || !window.state || !window.state.globalSettings) {
+              setTimeout(restoreLayout, 500);
+              return;
+            }
+            const layoutData = window.state.globalSettings.desktopLayoutV2;
+            if (layoutData) {
+              assignStableIds();
+              for (const [id, pos] of Object.entries(layoutData)) {
+                const el = document.getElementById(id);
+                if (el) {
+                  el.style.position = "absolute";
+                  el.style.left = pos.left;
+                  el.style.top = pos.top;
+                  el.style.width = pos.width;
+                  el.style.height = pos.height;
+                  el.style.margin = "0";
+                  // 如果读取到了自定义位置，就必须移除 CSS 里的 transform 居中
+                  el.style.transform = "none";
+                  el.style.bottom = "auto";
+                  el.style.right = "auto";
+
+                  const parent = el.parentNode;
+                  if (parent) {
+                    const parentStyle = window.getComputedStyle(parent);
+                    if (parentStyle.position === "static") {
+                      parent.style.position = "relative";
+                    }
+                    if (
+                      parent.clientHeight < 50 &&
+                      parent.id !== "phone-screen"
+                    ) {
+                      parent.style.minHeight = "100px";
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        function captureVideoFrame(videoElement) {
+          if (!videoElement || videoElement.paused || videoElement.ended)
+            return null;
+          try {
+            const canvas = document.createElement("canvas");
+            // 限制一下尺寸，防止token消耗过大或传输过慢，宽设置为 512px 左右足够了
+            const scale = 512 / videoElement.videoWidth;
+            canvas.width = 512;
+            canvas.height = videoElement.videoHeight * scale;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            // 返回 jpeg 格式，质量 0.6
+            return canvas.toDataURL("image/jpeg", 0.6);
+          } catch (e) {
+            console.error("截图失败:", e);
+            return null;
+          }
+        }
 
         // 4. 初始化函数 init()
         // ===================================================================
         async function init() {
+          // ▼▼▼▼▼▼▼▼▼▼▼▼ 修改：注册真正的 sw.js 文件 ▼▼▼▼▼▼▼▼▼▼▼▼
+          if ("serviceWorker" in navigator) {
+            try {
+              // 这一行变了：直接加载根目录的 sw.js
+              const registration =
+                await navigator.serviceWorker.register("sw.js");
+              console.log(
+                "ServiceWorker 注册成功 (File Mode), Scope:",
+                registration.scope,
+              );
+
+              // 等待激活
+              await navigator.serviceWorker.ready;
+            } catch (error) {
+              console.error("ServiceWorker 注册失败:", error);
+              // 提示用户可能的原因
+              console.warn(
+                "提示：请确保 sw.js 文件位于网站根目录，且通过 HTTPS 或 localhost 访问。",
+              );
+            }
+          }
+          // ▲▲▲▲▲▲▲▲▲▲▲▲ 修改结束 ▲▲▲▲▲▲▲▲▲▲▲▲
+
           const savedTheme = localStorage.getItem("ephone-theme") || "light"; // 默认为日间模式
           applyTheme(savedTheme);
 
@@ -52003,6 +53757,25 @@ ${libraryList}
           window.renderApiSettingsProxy = renderApiSettings;
           window.renderWallpaperScreenProxy = renderWallpaperScreen;
           window.renderWorldBookScreenProxy = renderWorldBookScreen;
+          const keepAliveUnlocker = () => {
+            const player = document.getElementById("strong-keep-alive-player");
+            if (player) {
+              player.volume = 0; // 确保静音
+              player
+                .play()
+                .then(() => {
+                  console.log("🔥 强力保活模式已激活：静音音频正在循环播放");
+                })
+                .catch((e) => {
+                  console.warn("保活启动失败 (需用户交互):", e);
+                });
+            }
+            document.removeEventListener("click", keepAliveUnlocker);
+            document.removeEventListener("touchstart", keepAliveUnlocker);
+          };
+
+          document.addEventListener("click", keepAliveUnlocker);
+          document.addEventListener("touchstart", keepAliveUnlocker);
 
           await loadAllDataFromDB();
           // 添加启动时加载CSS的逻辑
@@ -53020,6 +54793,9 @@ ${libraryList}
                 parseInt(
                   document.getElementById("github-backup-interval").value,
                 ) || 30;
+              state.apiConfig.pollinationsApiKey = document
+                .getElementById("pollinations-api-key")
+                .value.trim();
 
               // 如果开启了自动备份，立即重启定时器
               handleAutoBackupTimer();
@@ -53966,9 +55742,7 @@ ${libraryList}
                 : "none";
 
               document.querySelector(
-                `input[name="summary-mode"][value="${
-                  summarySettings.mode || "auto"
-                }"]`,
+                `input[name="summary-mode"][value="${summarySettings.mode || "auto"}"]`,
               ).checked = true;
               document.getElementById("summary-count-input").value =
                 summarySettings.count || 20;
@@ -54218,6 +55992,17 @@ ${libraryList}
                 (isGroup ? defaultMyGroupAvatar : defaultAvatar);
               document.getElementById("max-memory").value =
                 chat.settings.maxMemory;
+              const defaultMin = chat.isGroup ? 3 : 2;
+              const defaultMax = chat.isGroup ? 8 : 5;
+              const savedRange = chat.settings.replyCountRange || {
+                min: defaultMin,
+                max: defaultMax,
+              };
+
+              document.getElementById("min-reply-count-input").value =
+                savedRange.min;
+              document.getElementById("max-reply-count-input").value =
+                savedRange.max;
               // 记忆互通功能 - UI渲染逻辑
               const memoryLinkSelectBox = document.querySelector(
                 "#memory-link-multiselect .select-box",
@@ -54525,9 +56310,7 @@ ${libraryList}
 
               // 加载并更新所有预览相关控件
               const themeRadio = document.querySelector(
-                `input[name="theme-select"][value="${
-                  chat.settings.theme || "default"
-                }"]`,
+                `input[name="theme-select"][value="${chat.settings.theme || "default"}"]`,
               );
               if (themeRadio) themeRadio.checked = true;
               const fontSizeSlider =
@@ -54882,6 +56665,27 @@ ${libraryList}
 
               chat.settings.maxMemory =
                 parseInt(document.getElementById("max-memory").value) || 10;
+              const minReply =
+                parseInt(
+                  document.getElementById("min-reply-count-input").value,
+                ) || 1;
+              const maxReply =
+                parseInt(
+                  document.getElementById("max-reply-count-input").value,
+                ) || 5;
+
+              if (minReply > maxReply) {
+                alert("回复条数：最小值不能大于最大值！已自动修正。");
+                chat.settings.replyCountRange = {
+                  min: maxReply,
+                  max: minReply,
+                }; // 交换
+              } else {
+                chat.settings.replyCountRange = {
+                  min: minReply,
+                  max: maxReply,
+                };
+              }
 
               chat.settings.timePerceptionEnabled = document.getElementById(
                 "time-perception-toggle",
@@ -55426,9 +57230,7 @@ ${libraryList}
                 // 3. 构建更具体的“遗忘指令”
                 let forgetReason = "一些之前的消息已被用户删除。";
                 if (deletedPollsInfo.length > 0) {
-                  forgetReason += ` 其中包括以下投票：${deletedPollsInfo.join(
-                    "；",
-                  )}。`;
+                  forgetReason += ` 其中包括以下投票：${deletedPollsInfo.join("；")}。`;
                 }
                 forgetReason +=
                   " 你应该像它们从未存在过一样继续对话，并相应地调整你的记忆和行为，不要再提及这些被删除的内容。";
@@ -55927,9 +57729,7 @@ ${libraryList}
                 if (chat.isGroup) continue;
                 const historyMessage = {
                   role: "system",
-                  content: `[系统提示：用户${
-                    editingId ? "编辑了" : "发布了"
-                  }一条动态(ID: ${
+                  content: `[系统提示：用户${editingId ? "编辑了" : "发布了"}一条动态(ID: ${
                     editingId || postData.id
                   })，内容摘要是：“${postSummary}”。]`,
                   timestamp: Date.now(),
@@ -56172,10 +57972,7 @@ ${libraryList}
               const commentText = post.comments[commentIndex].text;
               const confirmed = await showCustomConfirm(
                 "删除评论",
-                `确定要删除这条评论吗？\n\n“${commentText.substring(
-                  0,
-                  50,
-                )}...”`,
+                `确定要删除这条评论吗？\n\n“${commentText.substring(0, 50)}...”`,
                 { confirmButtonClass: "btn-danger" },
               );
               if (confirmed) {
@@ -58129,7 +59926,9 @@ ${libraryList}
                 alert("已重置为默认模板 (请点击'保存'以应用更改到系统)");
               }
             });
-
+          document
+            .getElementById("manage-char-css-btn")
+            .addEventListener("click", openCharCssManager);
           // 绑定导入按钮和隐藏的文件选择器
           document
             .getElementById("import-theme-btn")
@@ -60980,6 +62779,33 @@ ${libraryList}
               listEl.appendChild(item);
             });
           }
+          // 1. 加载数据到内存
+          state.passerbyAvatars = await db.passerbyAvatars.toArray();
+
+          // 2. 绑定设置页面的按钮
+          document
+            .getElementById("manage-passerby-avatars-btn")
+            .addEventListener("click", openPasserbyManager);
+          document
+            .getElementById("add-passerby-avatar-btn")
+            .addEventListener("click", handleAddPasserbyAvatar);
+
+          // 3. 绑定弹窗内的按钮
+          document
+            .getElementById("close-passerby-manager-btn")
+            .addEventListener("click", () => {
+              document
+                .getElementById("passerby-avatar-manager-modal")
+                .classList.remove("visible");
+            });
+          document
+            .getElementById("bulk-add-passerby-btn")
+            .addEventListener("click", handleAddPasserbyAvatar);
+
+          // 4. 绑定文件输入框
+          document
+            .getElementById("passerby-upload-input")
+            .addEventListener("change", handlePasserbyFileChange);
           initAuroraDrag(); // 初始化拖拽
           initAuroraFontControl();
           initAuroraResize();
@@ -60987,6 +62813,7 @@ ${libraryList}
           initLoversSpace();
           initTaobao();
           initTukeyAccounting();
+          initDesktopManager();
 
           // ===================================================================
           // 5. 启动！
@@ -61323,13 +63150,14 @@ ${libraryList}
         }
 
         // 2. 验证与启动函数
-        function tryLogin() {
+        async function tryLogin() {
           // 获取元素
           const uidEl = document.getElementById("login-uid");
           const pwdEl = document.getElementById("login-pwd");
           const msgEl = document.getElementById("login-msg");
+          const submitBtn = document.getElementById("btn-login-submit");
 
-          // 安全检查：如果元素不存在（比如还没渲染），直接返回，防止报错
+          // 安全检查
           if (!uidEl || !pwdEl) {
             console.error("找不到登录输入框，请刷新页面");
             return;
@@ -61340,23 +63168,48 @@ ${libraryList}
 
           if (!uid || !pwd) {
             msgEl.textContent = "请输入完整的账号和密码";
+            if (msgEl) msgEl.style.color = "#ff453a"; // 红色警告
             return;
           }
 
-          // 验证逻辑
-          if (verifyLogin(uid, pwd)) {
-            msgEl.style.color = "#32d74b";
-            msgEl.textContent = "验证通过，正在进入...";
+          // 1. 设置加载状态
+          msgEl.style.color = "#fab1a0"; // 恢复默认颜色
+          msgEl.textContent = "VERIFYING...";
+          if (submitBtn) submitBtn.disabled = true; // 防止重复点击
 
-            try {
+          try {
+            // 2. 发起网络请求 (你的新逻辑)
+            const res = await fetch(
+              "https://puppy-subscription-api.zeabur.app/api/verify",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ account: uid, password: pwd }),
+              },
+            );
+
+            // 处理网络层面的错误 (如404, 500)
+            if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            // 3. 处理验证结果
+            if (data.success) {
+              // --- 验证成功 ---
+              msgEl.style.color = "#32d74b"; // 绿色成功
+              msgEl.textContent = "验证通过，正在进入...";
+
               // 保存登录状态
               localStorage.setItem("ephone_saved_uid", uid);
+              // 同时保存你的新验证标记
+              localStorage.setItem("ephone_auth", "true");
 
-              // 【关键修改】使用固定数据库名，找回你的旧数据
-              // 确保 script.js 上方的 initDatabase 函数里写的是 db = new Dexie('GeminiChatDB');
+              // 初始化数据库 (使用 uid 作为数据库标识)
               initDatabase(uid);
 
-              // 移除遮罩
+              // 移除遮罩动画
               const overlay = document.getElementById("login-overlay");
               if (overlay) {
                 overlay.style.transition = "opacity 0.5s ease";
@@ -61366,17 +63219,29 @@ ${libraryList}
 
               // 启动 App
               init();
-            } catch (e) {
-              console.error(e);
-              msgEl.style.color = "#ff453a";
-              msgEl.textContent = "初始化失败，请重试";
+            } else {
+              // --- 验证失败 (业务逻辑拒绝，如密码错误) ---
+              throw new Error(data.message || "账号或密码错误");
             }
-          } else {
-            msgEl.style.color = "#ff453a";
-            msgEl.textContent = "账号或密码错误";
-            const btn = document.getElementById("btn-login-submit");
-            btn.style.background = "#ff453a";
-            setTimeout(() => (btn.style.background = "#007aff"), 500);
+          } catch (error) {
+            // --- 错误处理 ---
+            console.error("登录出错:", error);
+            msgEl.style.color = "#ff453a"; // 红色警告
+            // 显示具体错误信息，如果是网络错误显示"网络连接失败"
+            msgEl.textContent = error.message.includes("fetch")
+              ? "网络连接失败"
+              : error.message || "验证失败";
+
+            // 按钮视觉反馈 (变红一下)
+            if (submitBtn) {
+              const originalBg = submitBtn.style.background;
+              submitBtn.style.background = "#ff453a";
+              setTimeout(
+                () => (submitBtn.style.background = originalBg || ""),
+                500,
+              );
+              submitBtn.disabled = false; // 恢复按钮可用
+            }
           }
         }
 
