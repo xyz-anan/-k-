@@ -465,7 +465,7 @@ body {
      * 110px是header的高度, -80px是向上拉的距离，你可以根据你的header样式微调。
     */
   padding-top: 80px;
-  margin-top: -60px;
+  margin-top: -50px;
 
   /* 保持内部消息气泡的flex布局 */
   display: flex;
