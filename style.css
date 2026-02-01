@@ -459,14 +459,10 @@ body {
   padding: 10px 15px; /* 保留舒适的左右内边距 */
   box-sizing: border-box;
 
-  /* 
-     * 保留你的头部适配方案：
-     * 为顶部半透明的header留出空间，同时让背景图能透上去。
-     * 110px是header的高度, -80px是向上拉的距离，你可以根据你的header样式微调。
-    */
-  padding-top: 110px;
-  margin-top: -80px;
-
+/* --- 重点修改：缩小差值 --- */
+  padding-top: 70px !important; /* 原本是 110px，缩减它会让消息上移 */
+  margin-top: -60px !important; /* 原本是 -80px，调整它来对齐顶栏 */
+  
   /* 保持内部消息气泡的flex布局 */
   display: flex;
   flex-direction: column;
