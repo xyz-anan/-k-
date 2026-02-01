@@ -147,7 +147,7 @@ body {
   z-index: 15;
   flex-shrink: 0;
   padding: 15px 15px;
-  padding-top: 45px;
+  padding-top: 0px;
   background-color: rgba(247, 247, 247, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
