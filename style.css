@@ -159,7 +159,6 @@ body {
   font-weight: 600;
   height: 90px;
   box-sizing: border-box;
-  flex-shrink: 0; /*
 }
 
 .header .header-actions {
@@ -461,8 +460,8 @@ body {
   box-sizing: border-box;
 
 /* --- 重点修改：缩小差值 --- */
-  padding-top: 60px !important; /* 原本是 110px，缩减它会让消息上移 */
-  margin-top: -50px !important; /* 原本是 -80px，调整它来对齐顶栏 */
+  padding-top: 70px !important; /* 原本是 110px，缩减它会让消息上移 */
+  margin-top: -60px !important; /* 原本是 -80px，调整它来对齐顶栏 */
   
   /* 保持内部消息气泡的flex布局 */
   display: flex;
