@@ -157,7 +157,7 @@ body {
   align-items: center;
   font-size: 18px;
   font-weight: 600;
-  height: 110px;
+  height: 80px;
   box-sizing: border-box;
 }
 
@@ -464,8 +464,8 @@ body {
      * 为顶部半透明的header留出空间，同时让背景图能透上去。
      * 110px是header的高度, -80px是向上拉的距离，你可以根据你的header样式微调。
     */
-  padding-top: 110px;
-  margin-top: -80px;
+  padding-top: 80px;
+  margin-top: -60px;
 
   /* 保持内部消息气泡的flex布局 */
   display: flex;
